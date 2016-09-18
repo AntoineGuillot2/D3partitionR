@@ -1,0 +1,17 @@
+Package: D3partitionR
+Title: D3partitionR
+Version: 0.0.0.9000
+Authors@R: c(person("Antoine", "GUILLOT", email = "first.last@example.com", role ="cre"),
+      person(
+        "Mike", "Bostock"
+        , role = c("aut", "cph")
+        , comment = "d3.js library in htmlwidgets/lib, http://d3js.org"
+      ))
+Description:Plotting circleTreeMap in R.
+Depends:
+    R (>= 3.3.1)
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 5.0.1.9000
+Imports: htmlwidgets, stats
