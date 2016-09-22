@@ -13,7 +13,7 @@ library(htmlwidgets)
 #' @import htmlwidgets
 #'
 #' @export
-D3partitionR <- function(random=F,data=NULL, type='circleTreeMap', width = NULL, height = NULL, elementId = NULL) {
+D3partitionR <- function(random=F,data=NULL, type='circleTreeMap', showAbsolutePercent=T,width = NULL, height = NULL, elementId = NULL) {
 
   if (random)
   {
@@ -35,7 +35,7 @@ D3partitionR <- function(random=F,data=NULL, type='circleTreeMap', width = NULL,
   }
   # forward options using x
   input_x = list(
-    root=CircleData,type=type
+    root=CircleData,type=type,showAbsolutePercent=showAbsolutePercent
   )
 
 
