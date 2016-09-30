@@ -107,7 +107,6 @@
 
 .partitionChart rect {
   stroke: #eee;
-  fill: #aaa;
   fill-opacity: .8;
 }
 
@@ -122,4 +121,8 @@
 
 .sunburst path {
   stroke: #fff;
+}
+
+.partitionLegend{
+  position:absolute;
 }

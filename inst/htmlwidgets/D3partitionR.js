@@ -11,6 +11,13 @@ HTMLWidgets.widget({
     return {
 
       renderValue: function(input_x) {
+var color_input = {
+  "step A": "#4372AA",
+  "step B": '#308014',
+  "step C": "#a173d1"
+};
+
+
 
 d3.select(el).select(".D3partitionR div svg").remove();
 d3.select("div .my_tooltip").remove();
@@ -21,8 +28,8 @@ var div = d3.select(el).append("div")
     
 
   var margin = {top: 20, right: 0, bottom: 0, left: 0},
-    width = 960,
-    height = 500 - margin.top - margin.bottom,
+    width = 700,
+    height = 400 - margin.top - margin.bottom,
     formatNumber = d3.format(",d"),
     margin=20;
     
@@ -40,18 +47,72 @@ var div = d3.select(el).append("div")
   {  
     var units='number'
   }
-  var max_value=input_x.root.size;
 
-  function absolutePercentString(max,current,print,units)
+  if (!color_input)
+  {
+    var color_input={};
+  }
+
+  function absolutePercentString(max,current,print)
   {
       if (print)
-      return("<tr><th>% of "+units +" from the beginning</th><td>"+ current/max*100 +"        </td>");
+       {return("<tr><th>From the beginning</th><td>"+ Math.round(current/max*1000)/10 +"% </td>");}
       else
       return("");
   }
-    if (input_x.showRelativePercent)
+    function relativePercentString(max,current,print)
   {
+      if (print)
+      {return("<tr><th>From previous step</th><td>"+ Math.round(current/max*1000)/10 +"% </td>");}
+      else
+      return("");
   }
+  
+  
+  function drawLegend(color_input,layout_type) {
+
+  // Dimensions of legend item: width, height, spacing, radius of rounded rect.
+  var li = {
+    w: 75, h: 30, s: 3, r: 3
+  };
+  if (layout_type=='circular')
+  {
+    var legendLeft=Math.min(height,width);
+  }
+  else if (layout_type=='rect')
+  {
+    var legendLeft=width + 2*margin;
+  }
+  
+  var legend = d3.select(el).append("svg")
+      .attr('class','partitionLegend')
+      .attr("width", li.w)
+      .attr("height", d3.keys(color_input).length * (li.h + li.s))
+      .style("left", legendLeft + "px")
+      .style("top", height/3 + "px");
+      
+
+  var g = legend.selectAll("g")
+      .data(d3.entries(color_input))
+      .enter().append("svg:g")
+      .attr("transform", function(d, i) {
+              return "translate(0," + i * (li.h + li.s) + ")";
+           });
+
+  g.append("svg:rect")
+      .attr("rx", li.r)
+      .attr("ry", li.r)
+      .attr("width", li.h)
+      .attr("height", li.h)
+      .style("fill", function(d) { return d.value; });
+
+  g.append("svg:text")
+      .attr("x", li.h)
+      .attr("y", li.h/2)
+      .attr("dy", "0.35em")
+      .attr("text-anchor", "right")
+      .text(function(d) { return d.key; });
+}
       
 
 if (input_x.type=='circleTreeMap')
@@ -59,7 +120,7 @@ if (input_x.type=='circleTreeMap')
 
 
 diameter = Math.min(height,width) - 10;
-
+var layout_type='circular';
 
   var color = d3.scale.linear()
     .domain([-1, 5])
@@ -76,8 +137,9 @@ var svg_circle = d3.select(el).append("div").append("svg")
     .attr("width", diameter)
     .attr("height", diameter)
     .style('text-align','center')
+    .attr("class", "CircleTreeMapR")
     .append("g")
-    .attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
+    .attr("transform", "translate(" + (diameter) / 2 + "," + diameter / 2 + ")");
 
 
 function draw_circle(root) {
@@ -92,7 +154,27 @@ function draw_circle(root) {
       .data(nodes)
       .enter().append("circle")
       .attr("class", function(d) { return d.parent ?  "node"  : "node node--root"; })
-      .style("fill", function(d) { return color(d.depth); })
+      .style("fill", 
+      function(d) { 
+        if (d.name in color_input)
+        {
+          d.color=color_input[d.name];
+          return color_input[d.name]
+        }
+        else
+        {
+          if (d.parent)
+          {
+            d.color=d3.rgb(d.parent.color).brighter(0.5)
+            return d.color
+          }
+          else 
+          {
+            d.color=color(d.depth); 
+            return d.color;
+          }
+        }
+      }) 
       .on("click", function(d) { if (focus !== d) zoom(d), d3.event.stopPropagation(); });
 
   var text = svg_circle.selectAll("text")
@@ -107,15 +189,13 @@ function draw_circle(root) {
 
   var node_part=svg_circle.selectAll("circle");
     node_part.on("mousemove", function(d) {
-            console.log(absolutePercentString(max_value,d.value,input_x.showAbsolutePercent                               ,units))
-            console.log(d.value)
-            console.log(max_value)
             div.transition()
                 .duration(200)
                 .style("opacity", .9);
                 div .html("<table style='width:100%'><tr><th>Name:</th><td>"+ d.name + "</td>"+
                           "<tr><th>"+ units +"</th><td>"+ d.value +"</td>"+
-                          absolutePercentString(max_value,d.value,input_x.showAbsolutePercent                               ,units)
+                          absolutePercentString(max_value,d.value,input_x.showAbsolutePercent)+
+                          relativePercentString(d.parent.value,d.value,input_x.showRelativePercent)
                           +"</table>")
                     .style("left", (d3.event.pageX - 20) + "px")
                     .style("top", (d3.event.pageY - 50) + "px");
@@ -164,7 +244,7 @@ else if (input_x.type=='treeMap')
   y=y.domain([0, height]);
   var transitioning;
   var color = d3.scale.category20c();
-
+var layout_type='rect';
 
 var treemap = d3.layout.treemap()
     .children(function(d, depth) { return depth ? null : d._children; })
@@ -179,7 +259,7 @@ var svg = d3.select(el).append("svg")
     .style("margin.right", -margin + "px")
     .append("g")
     .attr("class", "treeMap")
-    .attr("transform", "translate(" + margin + "," + margin + ")")
+    .attr("transform", "translate(" + (margin) + "," + margin + ")")
     .style("shape-rendering", "crispEdges");
 
 var grandparent = svg.append("g")
@@ -263,7 +343,9 @@ grandparent.append("text")
                 .duration(200)
                 .style("opacity", .9);
                 div .html("<table style='width:100%'><tr><th>Name:</th><td>"+ d.name + "</td>"+
-                          "<tr><th>Numbers:</th><td>"+ d.value +"</td></table>")
+                          "<tr><th>Numbers:</th><td>"+ d.value +"</td>"+
+                          absolutePercentString(max_value,d.value,input_x.showAbsolutePercent)+
+                          relativePercentString(d.parent.value,d.value,input_x.showRelativePercent)+"</table>")
                     .style("left", (d3.event.pageX - 20) + "px")
                     .style("top", (d3.event.pageY - 50) + "px");
             })
@@ -282,7 +364,27 @@ grandparent.append("text")
 
     g.append("rect")
         .attr("class", "parent")
-        .style("fill", function(d) { return color(d.name); })
+        .style("fill", 
+      function(d) { 
+        if (d.name in color_input)
+        {
+          d.color=color_input[d.name];
+          return color_input[d.name]
+        }
+        else
+        {
+          if (d.parent.parent)
+          {
+            d.color=d3.rgb(d.parent.color).brighter(0.25)
+            return d.color
+          }
+          else 
+          {
+            d.color=color(d.name); 
+            return d.color;
+          }
+        }
+      })
         .call(rect)
       .append("title");
 
@@ -352,16 +454,18 @@ grandparent.append("text")
 }
 else if (input_x.type=='partitionChart')
 {
+  var layout_type='rect';
+  var color = d3.scale.category20c();
 
    var x = d3.scale.linear().range([0, width]),
     y = d3.scale.linear().range([0, height]);
 
 var vis = d3.select(el).append("div")
     .attr("class", "partitionChart")
-    .style("width", width + "px")
-    .style("height", height + "px")
+    .style("width", (width + margin) + "px")
+    .style("height", (height + margin) + "px")
+    .attr("transform", "translate(" + (margin) + "," + 0 + ")")
     .append("svg:svg")
-
     .attr("width", width)
     .attr("height", height);
 
@@ -373,8 +477,9 @@ function draw_partition(root) {
   var g = vis.selectAll("g")
       .data(partition.nodes(root))
     .enter().append("svg:g")
-      .attr("transform", function(d) { return "translate(" + x(d.y) + "," + y(d.x) + ")"; })
-      .on("click", click);
+      .attr("transform", function(d) { return "translate(" +( (margin) + x(d.y)) + "," + y(d.x) + ")"; })
+      .on("click", click)
+      ;
 
   var kx = width / root.dx,
       ky = height / 1;
@@ -382,7 +487,44 @@ function draw_partition(root) {
   g.append("svg:rect")
       .attr("width", root.dy * kx)
       .attr("height", function(d) { return d.dx * ky; })
-      .attr("class", function(d) { return d.children ? "parent" : "child"; });
+      .attr("class", function(d) { return d.children ? "parent" : "child"; })
+      .style("fill", 
+      function(d) { 
+        if (d.name in color_input)
+        {
+          d.color=color_input[d.name];
+          return color_input[d.name]
+        }
+        else
+        {
+          if (d.parent)
+          {
+            d.color=d3.rgb(d.parent.color).brighter(0.25)
+            return d.color
+          }
+          else 
+          {
+            d.color=color((d.children ? d : d.parent).name); 
+            return d.color;
+          }
+        }
+      }) 
+      .on("mousemove", function(d) {
+            div.transition()
+                .duration(200)
+                .style("opacity", .9);
+                div .html("<table style='width:100%'><tr><th>Name:</th><td>"+ d.name + "</td>"+
+                          "<tr><th>Numbers:</th><td>"+ d.value +"</td>"+
+                          absolutePercentString(max_value,d.value,input_x.showAbsolutePercent)+
+                          relativePercentString(d.parent.value,d.value,input_x.showRelativePercent)+"</table>")
+                    .style("left", (d3.event.pageX - 20) + "px")
+                    .style("top", (d3.event.pageY - 50) + "px");
+            })
+      .on("mouseout", function(d) {
+            div.transition()
+                .duration(500)
+                .style("opacity", 0);
+        });
 
   g.append("svg:text")
       .attr("transform", transform)
@@ -403,11 +545,12 @@ function draw_partition(root) {
 
     var t = g.transition()
         .duration(d3.event.altKey ? 7500 : 750)
-        .attr("transform", function(d) { return "translate(" + x(d.y) + "," + y(d.x) + ")"; });
+        .attr("transform", function(d) { return "translate(" + (x(d.y)) + "," + y(d.x) + ")"; });
 
     rect_node=t.select("rect")
         .attr("width", d.dy * kx)
         .attr("height", function(d) { return d.dx * ky; });
+        
 
 
     t.select("text")
@@ -425,48 +568,56 @@ function draw_partition(root) {
 else if (input_x.type=='sunburst')
 {
 
-    var radius = (Math.min(width, height) / 2) - 10;
-
-var formatNumber = d3.format(",d");
-
-var x = d3.scale.linear()
+  var layout_type='circular';
+  var radius = (Math.min(width, height) / 2) - 10;
+  var formatNumber = d3.format(",d");
+  var x = d3.scale.linear()
     .range([0, 2 * Math.PI]);
-
-var y = d3.scale.sqrt()
+  var y = d3.scale.sqrt()
     .range([0, radius]);
-
-var color = d3.scale.category20c();
-
-var partition = d3.layout.partition()
+  var color = d3.scale.category20c();
+  var partition = d3.layout.partition()
     .value(function(d) { return d.value; });
-
-var arc = d3.svg.arc()
+  var arc = d3.svg.arc()
     .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); })
     .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
     .innerRadius(function(d) { return Math.max(0, y(d.y)); })
     .outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
-
-var svg = d3.select(el).append("svg")
+  var svg = d3.select(el).append("svg")
     .attr("width", width)
     .attr("height", height)
     .attr("class",'sunburst')
-  .append("g")
-    .attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
-draw_sunburst(input_x.root)
+    .append("g")
+    .attr("transform", "translate(" + (radius + margin ) + "," + (radius + margin) + ")");
+    
+  draw_sunburst(input_x.root)
 function draw_sunburst( root) {
 
 
   svg.selectAll("path")
       .data(partition.nodes(root))
-    .enter().append("path")
+      .enter().append("path")
       .attr("d", arc)
-      .style("fill", function(d) { return color((d.children ? d : d.parent).name); })
+      .style("fill", 
+      function(d) { 
+        if (d.name in color_input)
+        {
+          return color_input[d.name]
+        }
+        else
+        {
+          d.color=color((d.children ? d : d.parent).name); return d.color;
+        }
+        
+      })
       .on("mousemove", function(d) {
             div.transition()
                 .duration(200)
                 .style("opacity", .9);
                 div .html("<table style='width:100%'><tr><th>Name:</th><td>"+ d.name + "</td>"+
-                          "<tr><th>Numbers:</th><td>"+ d.value +"</td></table>")
+                          "<tr><th>Numbers:</th><td>"+ d.value +"</td>"+
+                          absolutePercentString(max_value,d.value,input_x.showAbsolutePercent)+
+                          relativePercentString(d.parent.value,d.value,input_x.showRelativePercent)+"</table>")
                     .style("left", (d3.event.pageX - 20) + "px")
                     .style("top", (d3.event.pageY - 50) + "px");
             })
@@ -475,7 +626,7 @@ function draw_sunburst( root) {
                 .duration(500)
                 .style("opacity", 0);
         })
-      .on("click", click)
+      .on("click", click);
 };
 
 function click(d) {
@@ -494,6 +645,8 @@ function click(d) {
 d3.select(self.frameElement).style("height", height + "px");
 }
 
+drawLegend(color_input,layout_type);
+  var max_value=input_x.root.value;
       },
 
       resize: function(width, height) {
