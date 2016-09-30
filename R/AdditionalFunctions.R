@@ -48,7 +48,7 @@ ConvertPathToHierarchy<-function(list_path,list_value)
 }
 
 #' @import stats
-generateRandomPath<-function(step=5,n_path=20)
+generateRandomPath<-function(step=7,n_path=200)
 {
 
   SPL<-sample(LETTERS,10)

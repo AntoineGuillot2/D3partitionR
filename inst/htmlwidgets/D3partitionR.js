@@ -11,12 +11,8 @@ HTMLWidgets.widget({
     return {
 
       renderValue: function(input_x) {
-var color_input = {
-  "step A": "#4372AA",
-  "step B": '#308014',
-  "step C": "#a173d1"
-};
-
+var color_input = input_x.legend.color
+console.log(input_x)
 
 
 d3.select(el).select(".D3partitionR div svg").remove();
@@ -27,12 +23,22 @@ var div = d3.select(el).append("div")
     .style("opacity", 0);
     
 
-  var margin = {top: 20, right: 0, bottom: 0, left: 0},
+  var margin = {top: 20, right: 0, bottom: 0, left: 0};
     width = 700,
     height = 400 - margin.top - margin.bottom,
     formatNumber = d3.format(",d"),
     margin=20;
-    
+  
+  if (input_x.width)
+  {
+    width=input_x.width;
+    console.log(width);
+  }
+    if (input_x.height)
+  {
+    height=input_x.height;
+    console.log(height);
+  }
   var x = d3.scale.linear()
     .range([0, width]);
 
@@ -77,7 +83,7 @@ var div = d3.select(el).append("div")
   };
   if (layout_type=='circular')
   {
-    var legendLeft=Math.min(height,width);
+    var legendLeft=Math.min(height,width) + 2*margin;
   }
   else if (layout_type=='rect')
   {
@@ -86,7 +92,7 @@ var div = d3.select(el).append("div")
   
   var legend = d3.select(el).append("svg")
       .attr('class','partitionLegend')
-      .attr("width", li.w)
+      .attr("width", li.w+li.h)
       .attr("height", d3.keys(color_input).length * (li.h + li.s))
       .style("left", legendLeft + "px")
       .style("top", height/3 + "px");
@@ -113,6 +119,30 @@ var div = d3.select(el).append("div")
       .attr("text-anchor", "right")
       .text(function(d) { return d.key; });
 }
+
+  function addTitle(title){
+    if (title.text)
+      d3.select(el).append("text")
+        .attr('class','partitionTitle')
+        .text(title.text)
+        .style("left", (width /2) + "px")             
+        .style("top", (margin/2) + "px")
+        .attr("text-anchor", "middle")  
+        .style("font-size", function(){
+          if (title.fontSize=="auto")
+          {
+            return "24px"
+          }
+          else 
+           return title.fontSize
+        });
+  }
+
+  var color_seq = d3.scale.linear()
+    .domain([-1, 5])
+    .range(["hsl(152,80%,80%)", "hsl(228,30%,40%)"])
+    .interpolate(d3.interpolateHcl);
+ var color_cat = d3.scale.category20c();
       
 
 if (input_x.type=='circleTreeMap')
@@ -122,10 +152,6 @@ if (input_x.type=='circleTreeMap')
 diameter = Math.min(height,width) - 10;
 var layout_type='circular';
 
-  var color = d3.scale.linear()
-    .domain([-1, 5])
-    .range(["hsl(152,80%,80%)", "hsl(228,30%,40%)"])
-    .interpolate(d3.interpolateHcl);
 
 
 var pack = d3.layout.pack()
@@ -135,11 +161,11 @@ var pack = d3.layout.pack()
 
 var svg_circle = d3.select(el).append("div").append("svg")
     .attr("width", diameter)
-    .attr("height", diameter)
+    .attr("height", diameter + margin)
     .style('text-align','center')
     .attr("class", "CircleTreeMapR")
     .append("g")
-    .attr("transform", "translate(" + (diameter) / 2 + "," + diameter / 2 + ")");
+    .attr("transform", "translate(" + (diameter) / 2 + "," +( 2*margin + diameter )/ 2 + ")");
 
 
 function draw_circle(root) {
@@ -154,8 +180,7 @@ function draw_circle(root) {
       .data(nodes)
       .enter().append("circle")
       .attr("class", function(d) { return d.parent ?  "node"  : "node node--root"; })
-      .style("fill", 
-      function(d) { 
+      .style("fill",function(d) { 
         if (d.name in color_input)
         {
           d.color=color_input[d.name];
@@ -163,14 +188,22 @@ function draw_circle(root) {
         }
         else
         {
-          if (d.parent)
+          if (input_x.legend.type=="sequential")
           {
-            d.color=d3.rgb(d.parent.color).brighter(0.5)
+            if (d.parent)
+            {
+            d.color=d3.rgb(d.parent.color).darker(0.5)
             return d.color
+            }
+            else
+            {
+              d.color=color_seq(d.depth); 
+              return d.color;
+            }
           }
-          else 
+          else
           {
-            d.color=color(d.depth); 
+            d.color=color_cat(d.name); 
             return d.color;
           }
         }
@@ -194,8 +227,8 @@ function draw_circle(root) {
                 .style("opacity", .9);
                 div .html("<table style='width:100%'><tr><th>Name:</th><td>"+ d.name + "</td>"+
                           "<tr><th>"+ units +"</th><td>"+ d.value +"</td>"+
-                          absolutePercentString(max_value,d.value,input_x.showAbsolutePercent)+
-                          relativePercentString(d.parent.value,d.value,input_x.showRelativePercent)
+                          absolutePercentString(max_value,d.value,input_x.tooltipOptions.showAbsolutePercent)+
+                          relativePercentString(d.parent.value,d.value,input_x.tooltipOptions.showRelativePercent)
                           +"</table>")
                     .style("left", (d3.event.pageX - 20) + "px")
                     .style("top", (d3.event.pageY - 50) + "px");
@@ -243,8 +276,7 @@ else if (input_x.type=='treeMap')
   x=x.domain([0, width]);
   y=y.domain([0, height]);
   var transitioning;
-  var color = d3.scale.category20c();
-var layout_type='rect';
+  var layout_type='rect';
 
 var treemap = d3.layout.treemap()
     .children(function(d, depth) { return depth ? null : d._children; })
@@ -259,7 +291,7 @@ var svg = d3.select(el).append("svg")
     .style("margin.right", -margin + "px")
     .append("g")
     .attr("class", "treeMap")
-    .attr("transform", "translate(" + (margin) + "," + margin + ")")
+    .attr("transform", "translate(" + (margin) + "," + 2*margin + ")")
     .style("shape-rendering", "crispEdges");
 
 var grandparent = svg.append("g")
@@ -344,8 +376,8 @@ grandparent.append("text")
                 .style("opacity", .9);
                 div .html("<table style='width:100%'><tr><th>Name:</th><td>"+ d.name + "</td>"+
                           "<tr><th>Numbers:</th><td>"+ d.value +"</td>"+
-                          absolutePercentString(max_value,d.value,input_x.showAbsolutePercent)+
-                          relativePercentString(d.parent.value,d.value,input_x.showRelativePercent)+"</table>")
+                          absolutePercentString(max_value,d.value,input_x.tooltipOptions.showAbsolutePercent)+
+                          relativePercentString(d.parent.value,d.value,input_x.tooltipOptions.showRelativePercent)+"</table>")
                     .style("left", (d3.event.pageX - 20) + "px")
                     .style("top", (d3.event.pageY - 50) + "px");
             })
@@ -364,8 +396,7 @@ grandparent.append("text")
 
     g.append("rect")
         .attr("class", "parent")
-        .style("fill", 
-      function(d) { 
+        .style("fill",function(d) { 
         if (d.name in color_input)
         {
           d.color=color_input[d.name];
@@ -373,18 +404,26 @@ grandparent.append("text")
         }
         else
         {
-          if (d.parent.parent)
+          if (input_x.legend.type=="sequential")
           {
-            d.color=d3.rgb(d.parent.color).brighter(0.25)
+            if (d.parent.parent)
+            {
+            d.color=d3.rgb(d.parent.color).darker(0.5)
             return d.color
+            }
+            else
+            {
+              d.color=color_seq(2); 
+              return d.color;
+            }
           }
-          else 
+          else
           {
-            d.color=color(d.name); 
+            d.color=color_cat(d.name); 
             return d.color;
           }
         }
-      })
+      }) 
         .call(rect)
       .append("title");
 
@@ -455,7 +494,6 @@ grandparent.append("text")
 else if (input_x.type=='partitionChart')
 {
   var layout_type='rect';
-  var color = d3.scale.category20c();
 
    var x = d3.scale.linear().range([0, width]),
     y = d3.scale.linear().range([0, height]);
@@ -464,7 +502,6 @@ var vis = d3.select(el).append("div")
     .attr("class", "partitionChart")
     .style("width", (width + margin) + "px")
     .style("height", (height + margin) + "px")
-    .attr("transform", "translate(" + (margin) + "," + 0 + ")")
     .append("svg:svg")
     .attr("width", width)
     .attr("height", height);
@@ -477,7 +514,7 @@ function draw_partition(root) {
   var g = vis.selectAll("g")
       .data(partition.nodes(root))
     .enter().append("svg:g")
-      .attr("transform", function(d) { return "translate(" +( (margin) + x(d.y)) + "," + y(d.x) + ")"; })
+      .attr("transform", function(d) { return "translate(" +x(d.y) + "," + (y(d.x)) + ")"; })
       .on("click", click)
       ;
 
@@ -488,8 +525,8 @@ function draw_partition(root) {
       .attr("width", root.dy * kx)
       .attr("height", function(d) { return d.dx * ky; })
       .attr("class", function(d) { return d.children ? "parent" : "child"; })
-      .style("fill", 
-      function(d) { 
+        .style("fill",function(d) {
+          console.log(d)
         if (d.name in color_input)
         {
           d.color=color_input[d.name];
@@ -497,14 +534,22 @@ function draw_partition(root) {
         }
         else
         {
-          if (d.parent)
+          if (input_x.legend.type=="sequential")
           {
-            d.color=d3.rgb(d.parent.color).brighter(0.25)
+            if (d.parent)
+            {
+            d.color=d3.rgb(d.parent.color).darker(0.5)
             return d.color
+            }
+            else
+            {
+              d.color=color_seq(d.depth); 
+              return d.color;
+            }
           }
-          else 
+          else
           {
-            d.color=color((d.children ? d : d.parent).name); 
+            d.color=color_cat(d.name); 
             return d.color;
           }
         }
@@ -515,8 +560,8 @@ function draw_partition(root) {
                 .style("opacity", .9);
                 div .html("<table style='width:100%'><tr><th>Name:</th><td>"+ d.name + "</td>"+
                           "<tr><th>Numbers:</th><td>"+ d.value +"</td>"+
-                          absolutePercentString(max_value,d.value,input_x.showAbsolutePercent)+
-                          relativePercentString(d.parent.value,d.value,input_x.showRelativePercent)+"</table>")
+                          absolutePercentString(max_value,d.value,input_x.tooltipOptions.showAbsolutePercent)+
+                          relativePercentString(d.parent.value,d.value,input_x.tooltipOptions.showRelativePercent)+"</table>")
                     .style("left", (d3.event.pageX - 20) + "px")
                     .style("top", (d3.event.pageY - 50) + "px");
             })
@@ -569,7 +614,7 @@ else if (input_x.type=='sunburst')
 {
 
   var layout_type='circular';
-  var radius = (Math.min(width, height) / 2) - 10;
+  var radius = (Math.min(width, height) / 2) - margin;
   var formatNumber = d3.format(",d");
   var x = d3.scale.linear()
     .range([0, 2 * Math.PI]);
@@ -588,7 +633,7 @@ else if (input_x.type=='sunburst')
     .attr("height", height)
     .attr("class",'sunburst')
     .append("g")
-    .attr("transform", "translate(" + (radius + margin ) + "," + (radius + margin) + ")");
+    .attr("transform", "translate(" + (radius + margin ) + "," + (radius + 2*margin) + ")");
     
   draw_sunburst(input_x.root)
 function draw_sunburst( root) {
@@ -597,18 +642,35 @@ function draw_sunburst( root) {
   svg.selectAll("path")
       .data(partition.nodes(root))
       .enter().append("path")
+      .attr("class","sunburstArc")
       .attr("d", arc)
-      .style("fill", 
-      function(d) { 
+        .style("fill",function(d) { 
         if (d.name in color_input)
         {
+          d.color=color_input[d.name];
           return color_input[d.name]
         }
         else
         {
-          d.color=color((d.children ? d : d.parent).name); return d.color;
+          if (input_x.legend.type=="sequential")
+          {
+            if (d.parent)
+            {
+            d.color=d3.rgb(d.parent.color).darker(0.5)
+            return d.color
+            }
+            else
+            {
+              d.color=color_seq(d.depth); 
+              return d.color;
+            }
+          }
+          else
+          {
+            d.color=color_cat(d.name); 
+            return d.color;
+          }
         }
-        
       })
       .on("mousemove", function(d) {
             div.transition()
@@ -616,8 +678,8 @@ function draw_sunburst( root) {
                 .style("opacity", .9);
                 div .html("<table style='width:100%'><tr><th>Name:</th><td>"+ d.name + "</td>"+
                           "<tr><th>Numbers:</th><td>"+ d.value +"</td>"+
-                          absolutePercentString(max_value,d.value,input_x.showAbsolutePercent)+
-                          relativePercentString(d.parent.value,d.value,input_x.showRelativePercent)+"</table>")
+                          absolutePercentString(max_value,d.value,input_x.tooltipOptions.showAbsolutePercent)+
+                          relativePercentString(d.parent.value,d.value,input_x.tooltipOptions.showRelativePercent)+"</table>")
                     .style("left", (d3.event.pageX - 20) + "px")
                     .style("top", (d3.event.pageY - 50) + "px");
             })
@@ -646,6 +708,7 @@ d3.select(self.frameElement).style("height", height + "px");
 }
 
 drawLegend(color_input,layout_type);
+addTitle(input_x.title);
   var max_value=input_x.root.value;
       },
 

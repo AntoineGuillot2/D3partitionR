@@ -100,14 +100,21 @@
 
 .partitionChart{
   display: block;
-  margin: auto;
-  margin-top: 60px;
   font-size: 11px;
 }
 
 .partitionChart rect {
   stroke: #eee;
   fill-opacity: .8;
+}
+
+.partitionChart rect:hover {
+  stroke: #000;
+  fill-opacity: 1;
+}
+
+.sunburst path:hover{
+  opacity:1;
 }
 
 .partitionChart rect.parent {
@@ -121,8 +128,15 @@
 
 .sunburst path {
   stroke: #fff;
+  opacity:0.6;
 }
 
 .partitionLegend{
   position:absolute;
+}
+
+.partitionTitle{
+  position:absolute;
+  top: 0;
+  
 }
