@@ -5,7 +5,9 @@
 \title{D3partitionR}
 \usage{
 D3partitionR(random = F, data = NULL, type = "circleTreeMap",
-  width = NULL, height = NULL, elementId = NULL)
+  tooltipOptions = list(showAbsolutePercent = T, showRelativePercent = T),
+  width = NULL, height = NULL, elementId = NULL, title = list(text =
+  NULL, fontSize = "auto"), legend = list(type = "categorical", color = NULL))
 }
 \arguments{
 \item{random}{generates a radom CircleTreeMap, default to FALSE.}
@@ -14,11 +16,27 @@ D3partitionR(random = F, data = NULL, type = "circleTreeMap",
 -a dataframe with two columns, the first one being the paths (and named path) and the second one the value of the paths.
 -a list of two lists with the same properties.}
 
+\item{type}{type of plots, to be among circleTreeMap, partitionChart, treeMap, sunburst. Defaut to circleTreeMap}
+
+\item{tooltipOptions}{list of options for the tooltip:
+-showAbsolutePercent: show the absolute percent from the beginning. Defaut to true.
+-showRelativePercent: show the percent of remaining from the previous step. Defaut to true.}
+
 \item{width}{width of the element}
 
 \item{height}{height of the element}
 
 \item{elementId}{Id of the elemen, default to null}
+
+\item{title}{options for the title:
+-text: text to be displayed
+-fontSize: fontSize (ex: "24px")}
+
+\item{legend}{List of options for the legend:
+-type, the legend can be either categorical or sequential. 
+      When setted to categorical, every different step has a different color.
+      When setted to sequential, the steps with a color provided are used as a reference. The further a steps from these reference, the darker
+-color, Coerce the colors of some steps. Notice: only the colors provided in these are going to be shown in the legend}
 }
 \description{
 This function generates the CircleTreeMap from your data or from random data
