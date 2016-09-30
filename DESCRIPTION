@@ -1,7 +1,7 @@
 Package: D3partitionR
 Title: D3partitionR
-Version: 0.0.0.9000
-Authors@R: c(person("Antoine", "GUILLOT", email = "first.last@example.com", role ="cre"),
+Version: 0.0.1.0000
+Authors@R: c(person("Antoine", "GUILLOT", email = "antoine.guil@outlook.fr", role ="cre"),
       person(
         "Mike", "Bostock"
         , role = c("aut", "cph")

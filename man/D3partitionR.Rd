@@ -12,33 +12,39 @@ D3partitionR(random = F, data = NULL, type = "circleTreeMap",
 \arguments{
 \item{random}{generates a radom CircleTreeMap, default to FALSE.}
 
-\item{data}{The inputs data, it should be in one of the following form:
--a dataframe with two columns, the first one being the paths (and named path) and the second one the value of the paths.
+\item{data}{The inputs data, it should be in one of the following form:\cr 
+-a dataframe with two columns, the first one being the paths (and named path) and the second one the value of the paths.\cr 
 -a list of two lists with the same properties.}
 
-\item{type}{type of plots, to be among circleTreeMap, partitionChart, treeMap, sunburst. Defaut to circleTreeMap}
+\item{type}{type of plots, to be among circleTreeMap, partitionChart, treeMap, sunburst. Defaut to circleTreeMap.}
 
-\item{tooltipOptions}{list of options for the tooltip:
--showAbsolutePercent: show the absolute percent from the beginning. Defaut to true.
+\item{tooltipOptions}{list of options for the tooltip:\cr 
+-showAbsolutePercent: show the absolute percent from the beginning. Defaut to true.\cr 
 -showRelativePercent: show the percent of remaining from the previous step. Defaut to true.}
 
-\item{width}{width of the element}
+\item{width}{width of the element.}
 
-\item{height}{height of the element}
+\item{height}{height of the element.}
 
-\item{elementId}{Id of the elemen, default to null}
+\item{elementId}{Id of the element, default to null.}
 
-\item{title}{options for the title:
--text: text to be displayed
+\item{title}{options for the title:\cr 
+-text: text to be displayed\cr 
 -fontSize: fontSize (ex: "24px")}
 
-\item{legend}{List of options for the legend:
--type, the legend can be either categorical or sequential. 
-      When setted to categorical, every different step has a different color.
-      When setted to sequential, the steps with a color provided are used as a reference. The further a steps from these reference, the darker
--color, Coerce the colors of some steps. Notice: only the colors provided in these are going to be shown in the legend}
+\item{legend}{List of options for the legend:\cr 
+-type, the legend can be either categorical or sequential. \cr 
+      When setted to categorical, every different step has a different color.\cr 
+      When setted to sequential, the steps with a color provided are used as a reference. The further a steps from these reference, the darker.\cr 
+-color, Coerce the colors of some steps. Notice: only the colors provided in these are going to be shown in the legend.}
 }
 \description{
 This function generates the CircleTreeMap from your data or from random data
+}
+\examples{
+#Base bubbleTreeMap with random data
+D3partitionR(T)
+#sunburst with categorical colors and some coerced legend and color
+D3partitionR(T,type="sunburst",tooltipOptions = list(showAbsolutePercent=F,showRelativePercent=F),legend=list(type="categorical",color=list("step A"="#0BA","step B"="#AA1","step C"="#ECC")))
 }
 
