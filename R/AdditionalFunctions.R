@@ -51,8 +51,8 @@ ConvertPathToHierarchy<-function(list_path,list_value)
 generateRandomPath<-function(step=7,n_path=200)
 {
 
-  SPL<-sample(LETTERS,10)
-  list_path=replicate(n_path,c('step A',paste('step', sample(SPL,sample(sample(2:step,1),1)))))
+  SAMPLE<-sample(LETTERS,20)
+  list_path=replicate(n_path,c('step A',paste('step', sample(SAMPLE,sample(sample(2:step,1),1)))))
   list_value=round(abs(rnorm(n_path,50,200)))
   RandomData<-ConvertPathToHierarchy(list_path,list_value)
   return(RandomData[[1]])

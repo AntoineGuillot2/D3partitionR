@@ -44,9 +44,11 @@ This function generates the CircleTreeMap from your data or from random data
 \examples{
 
 #Base bubbleTreeMap with random data
-D3partitionR(T)
+D3partitionR(TRUE)
 
 #sunburst with categorical colors and some coerced legend and color
-D3partitionR(T,type="sunburst",tooltipOptions = list(showAbsolutePercent=F,showRelativePercent=F),legend=list(type="categorical",color=list("step A"="#0BA","step B"="#AA1","step C"="#ECC")))
+D3partitionR(TRUE,type="sunburst",
+tooltipOptions = list(showAbsolutePercent=FALSE,showRelativePercent=FALSE),
+legend=list(type="categorical",color=list("step A"="#0BA","step B"="#AA1","step C"="#ECC")))
 }
 
