@@ -5,6 +5,23 @@ HTMLWidgets.widget({
   type: 'output',
 
   factory: function(el, width, height) {
+    
+    
+    function absolutePercentString(max,current,print)
+  {
+      if (print)
+       {return("<tr><th>From the beginning</th><td>"+ Math.round(current/max*1000)/10 +"% </td>");}
+      else
+      return("");
+  }
+  
+    function relativePercentString(max,current,print)
+  {
+      if (print)
+      {return("<tr><th>From previous step</th><td>"+ Math.round(current/max*1000)/10 +"% </td>");}
+      else
+      return("");
+  }
 
 
 
@@ -12,11 +29,24 @@ HTMLWidgets.widget({
 
       renderValue: function(input_x) {
 
-var color_input = input_x.legend.color
-
+//removing previous element
 d3.select(el).select(".D3partitionR div svg").remove();
 d3.select("div .my_tooltip").remove();
+
+//defining color palette
+  var color_input = input_x.legend.color
+
+  var color_seq = d3.scale.linear()
+    .domain([-1, 5])
+    .range(["hsl(152,80%,80%)", "hsl(228,30%,40%)"])
+    .interpolate(d3.interpolateHcl);
+  var color_cat = d3.scale.category20c();
+
+
+
 var max_value=input_x.root.cumulative_value;
+
+//creating tooltip
 var div = d3.select(el).append("div")
     .attr("class", "my_tooltip")
     .style("opacity", 0);
@@ -28,6 +58,7 @@ var div = d3.select(el).append("div")
     formatNumber = d3.format(",d"),
     margin=20;
 
+//defining width, height, ...
   if (input_x.width)
   {
     width=input_x.width;
@@ -56,23 +87,42 @@ var div = d3.select(el).append("div")
     var color_input={};
   }
 
-  function absolutePercentString(max,current,print)
-  {
-      if (print)
-       {return("<tr><th>From the beginning</th><td>"+ Math.round(current/max*1000)/10 +"% </td>");}
-      else
-      return("");
-  }
-    function relativePercentString(max,current,print)
-  {
-      if (print)
-      {return("<tr><th>From previous step</th><td>"+ Math.round(current/max*1000)/10 +"% </td>");}
-      else
-      return("");
-  }
+  
 
+//function to manage node color 
+function colorizeNode(d)
+{
+  console.log(d)
+  if (d.name in color_input)
+        {
+          d.color=color_input[d.name];
+          return color_input[d.name]
+        }
+        else
+        {
+          if (input_x.legend.type=="sequential")
+          {
+            if (d.parent)
+            {
+            d.color=d3.rgb(d.parent.color).darker(0.5)
+            return d.color
+            }
+            else
+            {
+              d.color=color_seq(d.depth);
+              return d.color;
+            }
+          }
+          else
+          {
+            d.color=color_cat(d.name);
+            return d.color;
+          }
+        }
+}
 
-  function drawLegend(color_input,layout_type) {
+//function to add legend
+function drawLegend(color_input,layout_type,legend_style) {
 
   // Dimensions of legend item: width, height, spacing, radius of rounded rect.
   var li = {
@@ -110,13 +160,16 @@ var div = d3.select(el).append("div")
       .style("fill", function(d) { return d.value; });
 
   g.append("svg:text")
+      .attr("class","legendText")
       .attr("x", li.h)
       .attr("y", li.h/2)
       .attr("dy", "0.35em")
       .attr("text-anchor", "right")
       .text(function(d) { return d.key; });
+   d3.select(el).select('.legendText').attr("style",legend_style);
 }
 
+//function to add a title
   function addTitle(title){
     console.log(title)
     if (title.text)
@@ -139,12 +192,8 @@ var div = d3.select(el).append("div")
         });
   }
   }
+  
 
-  var color_seq = d3.scale.linear()
-    .domain([-1, 5])
-    .range(["hsl(152,80%,80%)", "hsl(228,30%,40%)"])
-    .interpolate(d3.interpolateHcl);
- var color_cat = d3.scale.category20c();
 
 
 if (input_x.type=='circleTreeMap')
@@ -184,32 +233,8 @@ function draw_circle(root) {
       .attr("class", function(d) { return d.parent ?  "node"  : "node node--root"; })
       .attr("id", function(d,i) { return "Circle_"+i; })
       .style("fill",function(d) {
-        if (d.name in color_input)
-        {
-          d.color=color_input[d.name];
-          return color_input[d.name]
-        }
-        else
-        {
-          if (input_x.legend.type=="sequential")
-          {
-            if (d.parent)
-            {
-            d.color=d3.rgb(d.parent.color).darker(0.5)
-            return d.color
-            }
-            else
-            {
-              d.color=color_seq(d.depth);
-              return d.color;
-            }
-          }
-          else
-          {
-            d.color=color_cat(d.name);
-            return d.color;
-          }
-        }
+        return colorizeNode(d)
+        
       })
       .on("click", function(d) { if (focus !== d) zoom(d), d3.event.stopPropagation(); });
       
@@ -386,6 +411,7 @@ grandparent.append("text")
         .datum(d.parent)
         .on("click", transition)
       .select("text")
+        .attr("class","label")
         .text(name(d));
 
     var g1 = svg.insert("g", ".grandparent")
@@ -424,34 +450,7 @@ grandparent.append("text")
 
     g.append("rect")
         .attr("class", "parent")
-        .style("fill",function(d) {
-        if (d.name in color_input)
-        {
-          d.color=color_input[d.name];
-          return color_input[d.name]
-        }
-        else
-        {
-          if (input_x.legend.type=="sequential")
-          {
-            if (d.parent.parent)
-            {
-            d.color=d3.rgb(d.parent.color).darker(0.5)
-            return d.color
-            }
-            else
-            {
-              d.color=color_seq(2);
-              return d.color;
-            }
-          }
-          else
-          {
-            d.color=color_cat(d.name);
-            return d.color;
-          }
-        }
-      })
+        .style("fill",function(d) {return colorizeNode(d)})
         .call(rect)
       .append("title");
 
@@ -460,6 +459,7 @@ grandparent.append("text")
 
     g.append("text")
         .attr("dy", ".75em")
+        .attr("class","label")
         .text(function(d) { return d.name; })
         .call(text);
 
@@ -553,34 +553,7 @@ function draw_partition(root) {
       .attr("width", root.dy * kx)
       .attr("height", function(d) { return d.dx * ky; })
       .attr("class", function(d) { return d.children ? "parent" : "child"; })
-        .style("fill",function(d) {
-          console.log(d)
-        if (d.name in color_input)
-        {
-          d.color=color_input[d.name];
-          return color_input[d.name]
-        }
-        else
-        {
-          if (input_x.legend.type=="sequential")
-          {
-            if (d.parent)
-            {
-            d.color=d3.rgb(d.parent.color).darker(0.5)
-            return d.color
-            }
-            else
-            {
-              d.color=color_seq(d.depth);
-              return d.color;
-            }
-          }
-          else
-          {
-            d.color=color_cat(d.name);
-            return d.color;
-          }
-        }
+        .style("fill",function(d) {return colorizeNode(d)
       })
       .on("mousemove", function(d) {
             div.transition()
@@ -603,6 +576,7 @@ function draw_partition(root) {
       .attr("transform", transform)
       .attr("dy", ".35em")
       .style("opacity", function(d) { return d.dx * ky > 12 ? 1 : 0; })
+      .attr("class","label")
       .text(function(d) { return d.name; })
 
   d3.select(window)
@@ -672,34 +646,7 @@ function draw_sunburst( root) {
       .enter().append("path")
       .attr("class","sunburstArc")
       .attr("d", arc)
-        .style("fill",function(d) {
-        if (d.name in color_input)
-        {
-          d.color=color_input[d.name];
-          return color_input[d.name]
-        }
-        else
-        {
-          if (input_x.legend.type=="sequential")
-          {
-            if (d.parent)
-            {
-            d.color=d3.rgb(d.parent.color).darker(0.5)
-            return d.color
-            }
-            else
-            {
-              d.color=color_seq(d.depth);
-              return d.color;
-            }
-          }
-          else
-          {
-            d.color=color_cat(d.name);
-            return d.color;
-          }
-        }
-      })
+        .style("fill",function(d) {return colorizeNode(d)})
       .on("mousemove", function(d) {
             div.transition()
                 .duration(200)
@@ -826,6 +773,7 @@ function update(source) {
   nodeEnter.append("text")
       .attr("dy", 3.5)
       .attr("dx", 5.5)
+      .attr("class","label")
       .text(function(d) { return d.name+ ": "+ d.cumulative_value; });
 
   // Transition nodes to their new position.
@@ -839,34 +787,7 @@ function update(source) {
       .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
       .style("opacity", 1)
     .select("rect")
-    .style("fill",function(d) {
-        if (d.name in color_input)
-        {
-          d.color=color_input[d.name];
-          return color_input[d.name]
-        }
-        else
-        {
-          if (input_x.legend.type=="sequential")
-          {
-            if (d.parent)
-            {
-            d.color=d3.rgb(d.parent.color).darker(0.5)
-            return d.color
-            }
-            else
-            {
-              d.color=color_seq(d.depth);
-              return d.color;
-            }
-          }
-          else
-          {
-            d.color=color_cat(d.name);
-            return d.color;
-          }
-        }
-      });
+    .style("fill",function(d) {return colorizeNode(d)});
 
   // Transition exiting nodes to the parent's new position.
   node.exit().transition()
@@ -926,8 +847,10 @@ function click(d) {
 drawIndentedTree(input_x.root)
 }
 
-drawLegend(color_input,layout_type);
+drawLegend(color_input,layout_type,input_x.legend.style);
 addTitle(input_x.title);
+console.log(d3.select(el).select('.label'))
+d3.select(el).selectAll('.label').attr("style",input_x.labelStyle);
 
       },
 
