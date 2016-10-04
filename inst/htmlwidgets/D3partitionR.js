@@ -118,11 +118,15 @@ var div = d3.select(el).append("div")
 }
 
   function addTitle(title){
+    console.log(title)
     if (title.text)
-      d3.select(el).append("text")
+{      
+  var title_svg=d3.select(el).append("text")
         .attr('class','partitionTitle')
-        .text(title.text)
-        .style("left", (width /2) + "px")
+        .text(title.text);
+        
+ d3.select(el).select('.partitionTitle').attr("style",title.style);
+  title_svg.style("left", (width /2) + "px")
         .style("top", (margin/2) + "px")
         .attr("text-anchor", "middle")
         .style("font-size", function(){
@@ -133,6 +137,7 @@ var div = d3.select(el).append("div")
           else
            return title.fontSize
         });
+  }
   }
 
   var color_seq = d3.scale.linear()
