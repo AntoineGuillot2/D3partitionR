@@ -11,46 +11,43 @@ HTMLWidgets.widget({
     return {
 
       renderValue: function(input_x) {
-var color_input = input_x.legend.color
-console.log(input_x)
 
+var color_input = input_x.legend.color
 
 d3.select(el).select(".D3partitionR div svg").remove();
 d3.select("div .my_tooltip").remove();
-
+var max_value=input_x.root.cumulative_value;
 var div = d3.select(el).append("div")
     .attr("class", "my_tooltip")
     .style("opacity", 0);
-    
+
 
   var margin = {top: 20, right: 0, bottom: 0, left: 0};
     width = 700,
     height = 400 - margin.top - margin.bottom,
     formatNumber = d3.format(",d"),
     margin=20;
-  
+
   if (input_x.width)
   {
     width=input_x.width;
-    console.log(width);
   }
     if (input_x.height)
   {
     height=input_x.height;
-    console.log(height);
   }
   var x = d3.scale.linear()
     .range([0, width]);
 
   var y = d3.scale.linear()
     .range([0, height]);
-    
+
   if (input_x.units)
   {
     var units=input_x.units
   }
   else
-  {  
+  {
     var units='number'
   }
 
@@ -73,8 +70,8 @@ var div = d3.select(el).append("div")
       else
       return("");
   }
-  
-  
+
+
   function drawLegend(color_input,layout_type) {
 
   // Dimensions of legend item: width, height, spacing, radius of rounded rect.
@@ -89,14 +86,14 @@ var div = d3.select(el).append("div")
   {
     var legendLeft=width + 2*margin;
   }
-  
+
   var legend = d3.select(el).append("svg")
       .attr('class','partitionLegend')
       .attr("width", li.w+li.h)
       .attr("height", d3.keys(color_input).length * (li.h + li.s))
       .style("left", legendLeft + "px")
       .style("top", height/3 + "px");
-      
+
 
   var g = legend.selectAll("g")
       .data(d3.entries(color_input))
@@ -125,15 +122,15 @@ var div = d3.select(el).append("div")
       d3.select(el).append("text")
         .attr('class','partitionTitle')
         .text(title.text)
-        .style("left", (width /2) + "px")             
+        .style("left", (width /2) + "px")
         .style("top", (margin/2) + "px")
-        .attr("text-anchor", "middle")  
+        .attr("text-anchor", "middle")
         .style("font-size", function(){
           if (title.fontSize=="auto")
           {
             return "24px"
           }
-          else 
+          else
            return title.fontSize
         });
   }
@@ -143,7 +140,7 @@ var div = d3.select(el).append("div")
     .range(["hsl(152,80%,80%)", "hsl(228,30%,40%)"])
     .interpolate(d3.interpolateHcl);
  var color_cat = d3.scale.category20c();
-      
+
 
 if (input_x.type=='circleTreeMap')
 {
@@ -169,7 +166,7 @@ var svg_circle = d3.select(el).append("div").append("svg")
 
 
 function draw_circle(root) {
-  
+
 
   var focus = root,
       nodes = pack.nodes(root),
@@ -180,7 +177,8 @@ function draw_circle(root) {
       .data(nodes)
       .enter().append("circle")
       .attr("class", function(d) { return d.parent ?  "node"  : "node node--root"; })
-      .style("fill",function(d) { 
+      .attr("id", function(d,i) { return "Circle_"+i; })
+      .style("fill",function(d) {
         if (d.name in color_input)
         {
           d.color=color_input[d.name];
@@ -197,26 +195,40 @@ function draw_circle(root) {
             }
             else
             {
-              d.color=color_seq(d.depth); 
+              d.color=color_seq(d.depth);
               return d.color;
             }
           }
           else
           {
-            d.color=color_cat(d.name); 
+            d.color=color_cat(d.name);
             return d.color;
           }
         }
-      }) 
+      })
       .on("click", function(d) { if (focus !== d) zoom(d), d3.event.stopPropagation(); });
+      
+  var hidden_arc=svg_circle.selectAll(".hiddenArc")
+      .data(nodes)
+      .enter().append("circle")
+      .append("path")
+			.attr("class", "hiddenArc")
+			.attr("id", function(d, i) { return "circleArc_"+i; })
+			.attr("d", function(d,i) { return "M "+ -d.r +" 0 A "+ d.r +" "+ d.r +" 0 0 1 "+ d.r +" 0"; })
+			.style("fill", "none");
 
-  var text = svg_circle.selectAll("text")
+  var text = svg_circle.selectAll(".label")
       .data(nodes)
       .enter().append("text")
       .attr("class", "label")
+      .style("fontSize","40px")
       .style("display", function(d) { return  d.parent === root ? "inline" :"none" ; })
-      .style('font-size',"130%")
-      .text(function(d) { return d.name; });
+      .append("textPath")
+	    .attr("xlink:href",function(d,i){return "#circleArc_"+i;})
+	    .style("text-anchor","middle") //place the text halfway on the arc
+	     .attr("startOffset", "50%")
+      .text(function(d) { return d.name; })
+      ;
 
   var node = svg_circle.selectAll("circle,text");
 
@@ -245,20 +257,31 @@ function draw_circle(root) {
   zoomTo([root.x, root.y, root.r * 2 + margin]);
 
   function zoom(d) {
-    var focus0 = focus; focus = d;
+    
 
-    var transition = d3.transition()
+      var focus0 = focus; focus = d;
+      console.log(focus)
+      var v = [focus.x, focus.y, focus.r * 2 + margin],
+		k = (diameter) / v[2]; 
+
+
+   d3.transition()
         .duration(d3.event.altKey ? 7500 : 750)
         .tween("zoom", function(d) {
           var i = d3.interpolateZoom(view, [focus.x, focus.y, focus.r * 2 + margin]);
           return function(t) { zoomTo(i(t)); };
         });
-
-    transition.selectAll("text")
+  
+  d3.selectAll(".hiddenArc")
+      .attr("d", function(d,i) 
+      { return "M "+ (-d.r*k) +" 0 A "+ (d.r*k) +" "+ (d.r*k) +" 45 0 1 "       + (d.r*k) +" 0"; });
+      
+    d3.selectAll("text")
       .filter(function(d) { return d.parent === focus || this.style.display === "inline"; })
         .style("fill-opacity", function(d) { return d.parent === focus ? 1 : 0; })
-        .each("start", function(d) { if (d.parent === focus) this.style.display = "inline"; })
-        .each("end", function(d) { if (d.parent !== focus) this.style.display = "none"; });
+        .style("display", function(d) { return d.parent === focus ? "inline" :"none" ; })
+      
+    
   }
 
   function zoomTo(v) {
@@ -396,7 +419,7 @@ grandparent.append("text")
 
     g.append("rect")
         .attr("class", "parent")
-        .style("fill",function(d) { 
+        .style("fill",function(d) {
         if (d.name in color_input)
         {
           d.color=color_input[d.name];
@@ -413,17 +436,17 @@ grandparent.append("text")
             }
             else
             {
-              d.color=color_seq(2); 
+              d.color=color_seq(2);
               return d.color;
             }
           }
           else
           {
-            d.color=color_cat(d.name); 
+            d.color=color_cat(d.name);
             return d.color;
           }
         }
-      }) 
+      })
         .call(rect)
       .append("title");
 
@@ -543,17 +566,17 @@ function draw_partition(root) {
             }
             else
             {
-              d.color=color_seq(d.depth); 
+              d.color=color_seq(d.depth);
               return d.color;
             }
           }
           else
           {
-            d.color=color_cat(d.name); 
+            d.color=color_cat(d.name);
             return d.color;
           }
         }
-      }) 
+      })
       .on("mousemove", function(d) {
             div.transition()
                 .duration(200)
@@ -595,7 +618,7 @@ function draw_partition(root) {
     rect_node=t.select("rect")
         .attr("width", d.dy * kx)
         .attr("height", function(d) { return d.dx * ky; });
-        
+
 
 
     t.select("text")
@@ -634,7 +657,7 @@ else if (input_x.type=='sunburst')
     .attr("class",'sunburst')
     .append("g")
     .attr("transform", "translate(" + (radius + margin ) + "," + (radius + 2*margin) + ")");
-    
+
   draw_sunburst(input_x.root)
 function draw_sunburst( root) {
 
@@ -644,7 +667,7 @@ function draw_sunburst( root) {
       .enter().append("path")
       .attr("class","sunburstArc")
       .attr("d", arc)
-        .style("fill",function(d) { 
+        .style("fill",function(d) {
         if (d.name in color_input)
         {
           d.color=color_input[d.name];
@@ -661,13 +684,13 @@ function draw_sunburst( root) {
             }
             else
             {
-              d.color=color_seq(d.depth); 
+              d.color=color_seq(d.depth);
               return d.color;
             }
           }
           else
           {
-            d.color=color_cat(d.name); 
+            d.color=color_cat(d.name);
             return d.color;
           }
         }
@@ -706,10 +729,201 @@ function click(d) {
 
 d3.select(self.frameElement).style("height", height + "px");
 }
+else if (input_x.type=='collapsibleIndentedTree')
+{
+
+var layout_type='rect';
+var barHeight = 20,
+ barWidth = width * .8;
+
+var i = 0,
+    duration = 400,
+    root;
+
+var tree = d3.layout.tree()
+    .nodeSize([0, 20]);
+
+var diagonal = d3.svg.diagonal()
+    .projection(function(d) { return [d.y, d.x]; });
+
+var svg = d3.select(el).append("svg")
+    .attr("width", width + 2*margin)
+    .append("g")
+    .attr("transform", "translate(" + margin+ "," + margin + ")");
+
+function drawIndentedTree(flare) {
+  flare.x0 = 0;
+  flare.y0 = 0;
+  update(root = flare);
+};
+
+function update(source) {
+  // Compute the flattened node list. TODO use d3.layout.hierarchy.
+  var nodes = tree.nodes(root);
+
+  d3.select("svg").transition()
+      .duration(duration)
+      .attr("height", height);
+
+  d3.select(self.frameElement).transition()
+      .duration(duration)
+      .style("height", height + "px");
+
+  // Compute the "layout".
+  nodes.forEach(function(n, i) {
+    n.x = i * barHeight;
+  });
+
+  // Update the nodes…
+  var node = svg.selectAll("g.node")
+      .data(nodes, function(d) { return d.id || (d.id = ++i); });
+
+  var nodeEnter = node.enter().append("g")
+      .attr("class", "node")
+      .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+      .style("opacity", 1e-6);
+
+  // Enter any new nodes at the parent's previous position.
+  
+
+
+  if (input_x.specificOptions && input_x.specificOptions.bar)
+    {
+      nodeEnter.append("rect")
+        .attr("y", -barHeight / 2)
+        .attr("height", barHeight)
+        .attr("width", function(d) {return(d.cumulative_value / max_value * width * 0.8);})
+        .style("fill", color)
+        .style("z-index",1)
+        .on("click", click);
+    
+      nodeEnter.append("rect")
+        .attr("y", -barHeight / 2)
+        .attr("height", barHeight)
+        .attr("width", function(d) {return( width * 0.8);})
+        .style("fill", color)
+        .style("opacity",0.2)
+        .on("click", click);
+      
+    }
+  else
+  {
+    nodeEnter.append("rect")
+      .attr("y", -barHeight / 2)
+      .attr("height", barHeight)
+      .attr("width", function(d) {return(width * 0.8);})
+      .style("fill", color)
+      .style("z-index",1)
+      .on("click", click);
+  }
+  
+
+  nodeEnter.append("text")
+      .attr("dy", 3.5)
+      .attr("dx", 5.5)
+      .text(function(d) { return d.name+ ": "+ d.cumulative_value; });
+
+  // Transition nodes to their new position.
+  nodeEnter.transition()
+      .duration(duration)
+      .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+      .style("opacity", 1);
+
+  node.transition()
+      .duration(duration)
+      .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+      .style("opacity", 1)
+    .select("rect")
+    .style("fill",function(d) {
+        if (d.name in color_input)
+        {
+          d.color=color_input[d.name];
+          return color_input[d.name]
+        }
+        else
+        {
+          if (input_x.legend.type=="sequential")
+          {
+            if (d.parent)
+            {
+            d.color=d3.rgb(d.parent.color).darker(0.5)
+            return d.color
+            }
+            else
+            {
+              d.color=color_seq(d.depth);
+              return d.color;
+            }
+          }
+          else
+          {
+            d.color=color_cat(d.name);
+            return d.color;
+          }
+        }
+      });
+
+  // Transition exiting nodes to the parent's new position.
+  node.exit().transition()
+      .duration(duration)
+      .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+      .style("opacity", 1e-6)
+      .remove();
+
+  // Update the links…
+  var link = svg.selectAll("path.link")
+      .data(tree.links(nodes), function(d) { return d.target.id; });
+
+  // Enter any new links at the parent's previous position.
+  link.enter().insert("path", "g")
+      .attr("class", "link")
+      .attr("d", function(d) {
+        var o = {x: source.x0, y: source.y0};
+        return diagonal({source: o, target: o});
+      })
+    .transition()
+      .duration(duration)
+      .attr("d", diagonal);
+
+  // Transition links to their new position.
+  link.transition()
+      .duration(duration)
+      .attr("d", diagonal);
+
+  // Transition exiting nodes to the parent's new position.
+  link.exit().transition()
+      .duration(duration)
+      .attr("d", function(d) {
+        var o = {x: source.x, y: source.y};
+        return diagonal({source: o, target: o});
+      })
+      .remove();
+
+  // Stash the old positions for transition.
+  nodes.forEach(function(d) {
+    d.x0 = d.x;
+    d.y0 = d.y;
+  });
+}
+
+// Toggle children on click.
+function click(d) {
+  if (d.children) {
+    d._children = d.children;
+    d.children = null;
+  } else {
+    d.children = d._children;
+    d._children = null;
+  }
+  update(d);
+}
+
+drawIndentedTree(input_x.root)
+}
 
 drawLegend(color_input,layout_type);
 addTitle(input_x.title);
-  var max_value=input_x.root.value;
+
       },
 
       resize: function(width, height) {

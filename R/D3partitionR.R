@@ -34,7 +34,7 @@ library(htmlwidgets)
 #' D3partitionR(TRUE,type="sunburst",
 #' tooltipOptions = list(showAbsolutePercent=FALSE,showRelativePercent=FALSE),
 #' legend=list(type="categorical",color=list("step A"="#0BA","step B"="#AA1","step C"="#ECC")))
-D3partitionR <- function(random=F,data=NULL, type='circleTreeMap',tooltipOptions=list(showAbsolutePercent=T,showRelativePercent=T),width = NULL, height = NULL, elementId = NULL, title=list(text=NULL,fontSize="auto"),legend=list(type='categorical',color=NULL)) {
+D3partitionR <- function(random=F,data=NULL, type='circleTreeMap',tooltipOptions=list(showAbsolutePercent=T,showRelativePercent=T),width = NULL, height = NULL, elementId = NULL, title=list(text=NULL,fontSize="auto"),legend=list(type='categorical',color=NULL),specificOptions=NULL) {
 
   if (random)
   {
@@ -56,7 +56,7 @@ D3partitionR <- function(random=F,data=NULL, type='circleTreeMap',tooltipOptions
   }
   # forward options using x
   input_x = list(
-    root=CircleData,type=type,tooltipOptions=tooltipOptions,title=title,legend=legend,width=width,height=height
+    root=CircleData,type=type,tooltipOptions=tooltipOptions,title=title,legend=legend,width=width,height=height,specificOptions=specificOptions
   )
 
 
