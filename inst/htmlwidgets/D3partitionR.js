@@ -22,6 +22,19 @@ HTMLWidgets.widget({
       else
       return("");
   }
+  
+    function getDepth(obj) {
+    var depth = 0;
+    if (obj.children) {
+        obj.children.forEach(function (d) {
+            var tmpDepth = getDepth(d)
+            if (tmpDepth > depth) {
+                depth = tmpDepth
+            }
+        })
+    }
+    return 1 + depth
+  }
 
 
 
@@ -166,7 +179,7 @@ function drawLegend(color_input,layout_type,legend_style) {
       .attr("dy", "0.35em")
       .attr("text-anchor", "right")
       .text(function(d) { return d.key; });
-   d3.select(el).select('.legendText').attr("style",legend_style);
+   d3.select(el).select('.partitionLegend').attr("style",legend_style);
 }
 
 //function to add a title
@@ -181,7 +194,7 @@ function drawLegend(color_input,layout_type,legend_style) {
  d3.select(el).select('.partitionTitle').attr("style",title.style);
   title_svg.style("left", (width /2) + "px")
         .style("top", (margin/2) + "px")
-        .attr("text-anchor", "middle")
+        .attr("text-anchor", "left")
         .style("font-size", function(){
           if (title.fontSize=="auto")
           {
@@ -845,6 +858,177 @@ function click(d) {
 }
 
 drawIndentedTree(input_x.root)
+}
+else if (input_x.type=='collapsibleTree')
+{
+  var maxDepth= getDepth(input_x.root)
+  console.log(maxDepth)
+  var layout_type='rect';
+  var i = 0,
+    duration = 750,
+    root;
+
+var tree = d3.layout.tree()
+    .size([height, width]);
+
+var diagonal = d3.svg.diagonal()
+    .projection(function(d) { return [d.y, d.x]; });
+
+var svg = d3.select(el).append("svg")
+    .attr("class","collapsibleTree")
+    .attr("width", width + 2*margin)
+    .attr("height", height + 2*margin)
+  .append("g")
+    .attr("transform", "translate(" + 2*margin + "," + margin + ")");
+
+
+drawCollapsibleTree(input_x.root)
+
+function drawCollapsibleTree(flare) {
+
+
+  root = flare;
+  root.x0 = height / 2;
+  root.y0 = 0;
+
+  function collapse(d) {
+    if (d.children) {
+      d._children = d.children;
+      d._children.forEach(collapse);
+      d.children = null;
+    }
+  }
+
+  root.children.forEach(collapse);
+  update(root);
+};
+
+
+function update(source) {
+
+  // Compute the new tree layout.
+  var nodes = tree.nodes(root).reverse(),
+      links = tree.links(nodes),
+      node_padding=width/maxDepth;
+  
+
+  // Normalize for fixed-depth.
+  nodes.forEach(function(d) { d.y = d.depth * node_padding; });
+
+  // Update the nodes…
+  var node = svg.selectAll("g.node")
+      .data(nodes, function(d) { return d.id || (d.id = ++i); });
+
+  // Enter any new nodes at the parent's previous position.
+  var nodeEnter = node.enter().append("g")
+      .attr("class", "node")
+      .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+      .on("click", click);
+
+  nodeEnter.append("circle")
+      .attr("r", 1e-6)
+      .style("fill", function(d) { return colorizeNode(d)})
+      .on("mousemove", function(d) {
+            div.transition()
+                .duration(200)
+                .style("opacity", .9);
+                div .html("<table style='width:100%'><tr><th>Name:</th><td>"+ d.name + "</td>"+
+                          "<tr><th>"+ units +"</th><td>"+ d.cumulative_value +"</td>"+
+                          absolutePercentString(max_value,d.cumulative_value,input_x.tooltipOptions.showAbsolutePercent)+
+                          relativePercentString(d.parent.cumulative_value,d.cumulative_value,input_x.tooltipOptions.showRelativePercent)
+                          +"</table>")
+                    .style("left", (d3.event.pageX - 20) + "px")
+                    .style("top", (d3.event.pageY - 50) + "px");
+            })
+        .on("mouseout", function(d) {
+            div.transition()
+                .duration(500)
+                .style("opacity", 0);
+        });
+      
+
+  nodeEnter.append("text")
+      .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
+      .attr("dy", ".35em")
+      .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+      .text(function(d) { return d.name; })
+      .attr("class","label")
+      .style("fill-opacity", 1e-6);
+
+  // Transition nodes to their new position.
+  var nodeUpdate = node.transition()
+      .duration(duration)
+      .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+
+  nodeUpdate.select("circle")
+      .attr("r", function(d){return (35*Math.log(1+2*d.cumulative_value/max_value))})
+      .style("fill", function(d) { return colorizeNode(d)})
+
+      
+      
+
+  nodeUpdate.select("text")
+      .style("fill-opacity", 1);
+
+
+  // Transition exiting nodes to the parent's new position.
+  var nodeExit = node.exit().transition()
+      .duration(duration)
+      .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+      .remove();
+
+  nodeExit.select("circle")
+      .attr("r", 1e-6);
+
+  nodeExit.select("text")
+      .style("fill-opacity", 1e-6);
+
+  // Update the links…
+  var link = svg.selectAll("path.link")
+      .data(links, function(d) { return d.target.id; });
+
+  // Enter any new links at the parent's previous position.
+  link.enter().insert("path", "g")
+      .attr("class", "link")
+      .attr("d", function(d) {
+        var o = {x: source.x0, y: source.y0};
+        return diagonal({source: o, target: o});
+      });
+
+  // Transition links to their new position.
+  link.transition()
+      .duration(duration)
+      .attr("d", diagonal);
+
+  // Transition exiting nodes to the parent's new position.
+  link.exit().transition()
+      .duration(duration)
+      .attr("d", function(d) {
+        var o = {x: source.x, y: source.y};
+        return diagonal({source: o, target: o});
+      })
+      .remove();
+
+  // Stash the old positions for transition.
+  nodes.forEach(function(d) {
+    d.x0 = d.x;
+    d.y0 = d.y;
+  });
+  
+  d3.select(el).selectAll('.label').attr("style",input_x.labelStyle);
+}
+
+// Toggle children on click.
+function click(d) {
+  if (d.children) {
+    d._children = d.children;
+    d.children = null;
+  } else {
+    d.children = d._children;
+    d._children = null;
+  }
+  update(d);
+}
 }
 
 drawLegend(color_input,layout_type,input_x.legend.style);
