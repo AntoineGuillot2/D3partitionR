@@ -194,7 +194,7 @@ function drawLegend(color_input,layout_type,legend_style) {
  d3.select(el).select('.partitionTitle').attr("style",title.style);
   title_svg.style("left", (width /2) + "px")
         .style("top", (margin/2) + "px")
-        .attr("text-anchor", "left")
+        .attr("text-anchor", "middle")
         .style("font-size", function(){
           if (title.fontSize=="auto")
           {
@@ -862,7 +862,6 @@ drawIndentedTree(input_x.root)
 else if (input_x.type=='collapsibleTree')
 {
   var maxDepth= getDepth(input_x.root)
-  console.log(maxDepth)
   var layout_type='rect';
   var i = 0,
     duration = 750,
@@ -913,7 +912,11 @@ function update(source) {
   
 
   // Normalize for fixed-depth.
-  nodes.forEach(function(d) { d.y = d.depth * node_padding; });
+  nodes.forEach(function(d) {
+
+    d.y = d.depth * node_padding; 
+    
+  });
 
   // Update the nodes…
   var node = svg.selectAll("g.node")
@@ -1013,9 +1016,11 @@ function update(source) {
   nodes.forEach(function(d) {
     d.x0 = d.x;
     d.y0 = d.y;
-  });
+});
   
   d3.select(el).selectAll('.label').attr("style",input_x.labelStyle);
+
+    d3.select(el).selectAll('.label').attr("style",input_x.labelStyle);
 }
 
 // Toggle children on click.
@@ -1033,7 +1038,6 @@ function click(d) {
 
 drawLegend(color_input,layout_type,input_x.legend.style);
 addTitle(input_x.title);
-console.log(d3.select(el).select('.label'))
 d3.select(el).selectAll('.label').attr("style",input_x.labelStyle);
 
       },

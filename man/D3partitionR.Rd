@@ -7,7 +7,8 @@
 D3partitionR(random = F, data = NULL, type = "circleTreeMap",
   tooltipOptions = list(showAbsolutePercent = T, showRelativePercent = T),
   width = NULL, height = NULL, elementId = NULL, title = list(text =
-  NULL, fontSize = "auto"), legend = list(type = "categorical", color = NULL))
+  NULL, fontSize = "auto"), legend = list(type = "categorical", color = NULL),
+  labelStyle = NULL, specificOptions = NULL)
 }
 \arguments{
 \item{random}{generates a radom CircleTreeMap, default to FALSE.}
@@ -30,13 +31,20 @@ D3partitionR(random = F, data = NULL, type = "circleTreeMap",
 
 \item{title}{options for the title:\cr 
 -text: text to be displayed\cr 
--fontSize: fontSize (ex: "24px")}
+-fontSize: fontSize (ex: "24px")
+-style: A CSS string to change the title style}
 
 \item{legend}{List of options for the legend:\cr 
 -type, the legend can be either categorical or sequential. \cr 
       When setted to categorical, every different step has a different color.\cr 
       When setted to sequential, the steps with a color provided are used as a reference. The further a steps from these reference, the darker.\cr 
--color, Coerce the colors of some steps. Notice: only the colors provided in these are going to be shown in the legend.}
+-color, Coerce the colors of some steps. Notice: only the colors provided in these are going to be shown in the legend.
+-style: A CSS string to change the title style}
+
+\item{labelStyle}{A CSS string to change the labels style}
+
+\item{specificOptions}{Options speficic to some king of charts\cr 
+-collapsibleIndentedTree: list(bar=T), to true if you want to have bars proportional to the size of the step}
 }
 \description{
 This function generates the CircleTreeMap from your data or from random data

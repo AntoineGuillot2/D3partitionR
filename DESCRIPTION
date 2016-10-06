@@ -1,11 +1,11 @@
 Package: D3partitionR
 Title: Plotting D3 Hierarchical Plots in R and Shiny
-Version: 0.1
+Version: 0.1.5
 Authors@R: c(person("Antoine", "GUILLOT", email = "antoine.guil@outlook.fr", role ="cre"),
       person(
         "Mike", "Bostock"
         , role = c("aut", "cph")
-        , comment = "d3.js library in htmlwidgets/lib, http://d3js.org. The partitionChart, sunburst, the treemap, and the zoomable circlePackig are all derived from his works."
+        , comment = "d3.js library in htmlwidgets/lib, http://d3js.org. The partitionChart, sunburst, the treemap, the zoomable circlePacking, the collapsible indented tree and the collapsible tree are all derived from his works."
       ))
 Description: Plotting hierarchical plots in R such as Sunburst, Treemap, Circle Treemap and Partition Chart.
 Depends:
