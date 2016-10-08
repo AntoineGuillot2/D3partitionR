@@ -23,7 +23,7 @@ HTMLWidgets.widget({
       return("");
   }
   
-    function getDepth(obj) {
+  function getDepth(obj) {
     var depth = 0;
     if (obj.children) {
         obj.children.forEach(function (d) {
@@ -60,6 +60,36 @@ HTMLWidgets.widget({
     }
     return res
   }
+  
+  
+  function getParentPath(obj,accu) {
+    var accu_tp=accu.concat(obj.name);
+    if (obj.parent) 
+    {
+      return(getParentPath(obj.parent,accu_tp))
+    }
+    else
+    {
+      return(accu_tp)
+    }
+  }
+  
+  function getAllLeaf(obj) {
+    res=[]
+    if (obj.children) 
+    {
+        obj.children.forEach(function (d) {
+            res=res.concat(getAllLeaf(d))
+        })
+    }
+    else
+    {
+      res=obj.name;
+    }
+    return(res)
+  }
+  
+  
 
 
 
@@ -68,15 +98,25 @@ HTMLWidgets.widget({
       renderValue: function(input_x) {
         
 
-var obj_out={clickedStep:"none",currentPath:"none",visiblePath:"none"};
+var obj_out={clickedStep:"none",currentPath:"none",visiblePaths:"none",visibleLeaf:"none"};
 
 
-function shinyReturnOutput(){
-  if (typeof input_x.InputId != "undefined")
+function shinyReturnOutput(obj){
+  if (input_x.Input.enabled)
   {
-    Shiny.onInputChange(input_x.InputId, obj_out);
+    if (input_x.Input.clickedStep)
+      obj_out.clickedStep=obj.name;
+    if (input_x.Input.currentPath)
+      obj_out.currentPath=getParentPath(obj,[]);
+    if (input_x.Input.visiblePaths)
+      obj_out.visiblePaths=getChildPath(obj,[],true);
+    if (input_x.Input.visibleLeaf)
+      obj_out.visibleLeaf=getAllLeaf(obj);
+    Shiny.onInputChange(input_x.Input.Id, obj_out);
   }
 }
+
+
 
 //removing previous element
 d3.select(el).select(".D3partitionR div svg").remove();
@@ -283,8 +323,8 @@ function draw_circle(root) {
         return colorizeNode(d)
         
       })
-      .on("click", function(d) { if (focus !== d) zoom(d), d3.event.stopPropagation();
-      console.log(getChildPath(d,[],true))
+      .on("click", function(d) { if (focus !== d) zoom(d), d3.event.stopPropagation();shinyReturnOutput(d);
+
       });
       
   var hidden_arc=svg_circle.selectAll(".hiddenArc")
@@ -331,7 +371,7 @@ function draw_circle(root) {
         });
 
   d3.select(el)
-      .on("click", function() { zoom(root); });
+      .on("click", function() { zoom(root); shinyReturnOutput(root);});
 
   zoomTo([root.x, root.y, root.r * 2 + margin]);
 
@@ -524,6 +564,7 @@ function updateIdentedTree(source) {
 
 // Toggle children on click.
 function click(d) {
+  shinyReturnOutput(d)
   if (d.children) {
     d._children = d.children;
     d.children = null;
@@ -620,6 +661,7 @@ grandparent.append("text")
   }
 
   function display(d) {
+    shinyReturnOutput(d)
     grandparent
         .datum(d.parent)
         .on("click", transition)
@@ -793,10 +835,12 @@ function draw_partition(root) {
       .text(function(d) { return d.name; })
 
   d3.select(window)
-      .on("click", function() { click(root); })
+      .on("click", function() { click(root);shinyReturnOutput(root) })
 
   function click(d) {
+    
     if (!d.children) return;
+    shinyReturnOutput(d)
 
     kx = (d.y ? width - 40 : width) / (1 - d.y);
     ky = height / d.dx;
@@ -880,6 +924,7 @@ function draw_sunburst( root) {
 };
 
 function click(d) {
+  shinyReturnOutput(d)
   svg.transition()
       .duration(750)
       .tween("scale", function() {
@@ -1060,6 +1105,7 @@ function update(source) {
 
 // Toggle children on click.
 function click(d) {
+  shinyReturnOutput(d)
   if (d.children) {
     d._children = d.children;
     d.children = null;
