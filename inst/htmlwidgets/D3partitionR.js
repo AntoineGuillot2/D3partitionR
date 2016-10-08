@@ -35,12 +35,48 @@ HTMLWidgets.widget({
     }
     return 1 + depth
   }
+  
+  function getChildPath(obj,accu,start) {
+    var res=[];
+    var accu_tp=accu.concat([obj.name]);
+    if (obj.children) 
+    {
+      if (!start)
+      {
+        obj.children.forEach(function (d) {
+            res=res.concat(getChildPath(d,accu_tp))
+        })
+      }
+      else
+      {
+        obj.children.forEach(function (d) {
+            res=res.concat([getChildPath(d,accu_tp)])
+        })
+      }
+    }
+    else
+    {
+      res=accu_tp;
+    }
+    return res
+  }
 
 
 
     return {
 
       renderValue: function(input_x) {
+        
+
+var obj_out={clickedStep:"none",currentPath:"none",visiblePath:"none"};
+
+
+function shinyReturnOutput(){
+  if (typeof input_x.InputId != "undefined")
+  {
+    Shiny.onInputChange(input_x.InputId, obj_out);
+  }
+}
 
 //removing previous element
 d3.select(el).select(".D3partitionR div svg").remove();
@@ -247,7 +283,9 @@ function draw_circle(root) {
         return colorizeNode(d)
         
       })
-      .on("click", function(d) { if (focus !== d) zoom(d), d3.event.stopPropagation(); });
+      .on("click", function(d) { if (focus !== d) zoom(d), d3.event.stopPropagation();
+      console.log(getChildPath(d,[],true))
+      });
       
   var hidden_arc=svg_circle.selectAll(".hiddenArc")
       .data(nodes)
@@ -339,7 +377,6 @@ else if (input_x.type=='collapsibleIndentedTree')
 var layout_type='rect';
 var barHeight = 20,
  barWidth = width * .8;
-var margin=20;
 var i = 0,
     duration = 400,
     root;
@@ -362,6 +399,7 @@ function drawIndentedTree(flare) {
 };
 
 function updateIdentedTree(source) {
+  console.log(source)
   // Compute the flattened node list. TODO use d3.layout.hierarchy.
   var nodes = tree.nodes(root);
 
@@ -438,8 +476,8 @@ function updateIdentedTree(source) {
       .duration(duration)
       .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
       .style("opacity", 1)
-    .select("rect")
-    .style("fill",function(d) {return colorizeNode(d)});
+      .select("rect")
+      .style("fill",function(d) {return colorizeNode(d); console.log(d);});
 
   // Transition exiting nodes to the parent's new position.
   node.exit().transition()
@@ -493,7 +531,7 @@ function click(d) {
     d.children = d._children;
     d._children = null;
   }
-  update(d);
+  updateIdentedTree(d);
 }
 
 drawIndentedTree(input_x.root)
