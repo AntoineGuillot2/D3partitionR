@@ -54,6 +54,21 @@ HTMLWidgets.widget({
         })
       }
     }
+    else if (obj._children)
+    {
+      if (!start)
+      {
+        obj._children.forEach(function (d) {
+            res=res.concat(getChildPath(d,accu_tp))
+        })
+      }
+      else
+      {
+        obj._children.forEach(function (d) {
+            res=res.concat([getChildPath(d,accu_tp)])
+        })
+      }
+    }
     else
     {
       res=accu_tp;
@@ -82,6 +97,12 @@ HTMLWidgets.widget({
             res=res.concat(getAllLeaf(d))
         })
     }
+    else  if (obj._children) 
+    {
+        obj._children.forEach(function (d) {
+            res=res.concat(getAllLeaf(d))
+        })
+    }
     else
     {
       res=obj.name;
@@ -89,7 +110,28 @@ HTMLWidgets.widget({
     return(res)
   }
   
-  
+  function getAllNodes(obj) {
+    res=[]
+    if (obj.children) 
+    {
+        res=res.concat(obj.name);        
+        obj.children.forEach(function (d) {
+            res=res.concat(getAllLeaf(d));
+        })
+    }
+    else if (obj._children) 
+    {
+        res=res.concat(obj.name);        
+        obj._children.forEach(function (d) {
+            res=res.concat(getAllLeaf(d));
+        })
+    }
+    else
+    {
+      res=obj.name;
+    }
+    return(res)
+  }
 
 
 
@@ -112,6 +154,8 @@ function shinyReturnOutput(obj){
       obj_out.visiblePaths=getChildPath(obj,[],true);
     if (input_x.Input.visibleLeaf)
       obj_out.visibleLeaf=getAllLeaf(obj);
+    if (input_x.Input.visibleNode)
+      obj_out.visibleNode=getAllNode(obj);
     Shiny.onInputChange(input_x.Input.Id, obj_out);
   }
 }
@@ -309,6 +353,7 @@ var svg_circle = d3.select(el).append("div").append("svg")
 function draw_circle(root) {
 
 
+
   var focus = root,
       nodes = pack.nodes(root),
       view;
@@ -323,7 +368,8 @@ function draw_circle(root) {
         return colorizeNode(d)
         
       })
-      .on("click", function(d) { if (focus !== d) zoom(d), d3.event.stopPropagation();shinyReturnOutput(d);
+      .on("click", function(d) { if (focus !== d) zoom(d), d3.event.stopPropagation();
+      shinyReturnOutput(d)
 
       });
       
@@ -371,12 +417,13 @@ function draw_circle(root) {
         });
 
   d3.select(el)
-      .on("click", function() { zoom(root); shinyReturnOutput(root);});
+      .on("click", function() { zoom(root);shinyReturnOutput(root);});
 
   zoomTo([root.x, root.y, root.r * 2 + margin]);
-
+ 
   function zoom(d) {
-    
+    if (d.parent || d.is_root)
+    {
 
       var focus0 = focus; focus = d;
       var v = [focus.x, focus.y, focus.r * 2 + margin],
@@ -394,13 +441,28 @@ function draw_circle(root) {
       .attr("d", function(d,i) 
       { return "M "+ (-d.r*k) +" 0 A "+ (d.r*k) +" "+ (d.r*k) +" 45 0 1 "       + (d.r*k) +" 0"; });
       
-    d3.selectAll("text")
-      .filter(function(d) { return d.parent === focus || this.style.display === "inline"; })
-        .style("fill-opacity", function(d) { return d.parent === focus ? 1 : 0; })
-        .style("display", function(d) { return d.parent === focus ? "inline" :"none" ; })
+
       
+    d3.selectAll("text")
+        .style("fill-opacity", function(d) { 
+          if (d && d.parent)
+          {return d.parent === focus ? 1 : 0; }
+          else
+          {return 0}
+        }
+          )
+        .style("display", function(d) { 
+          if (d && d.parent)
+          return d.parent === focus ? "inline" :"none" ; 
+          else
+          return "none"
+        }
+          )
+          
     
-  }
+
+    
+  }}
 
   function zoomTo(v) {
     var k = diameter / v[2]; view = v;
@@ -661,7 +723,7 @@ grandparent.append("text")
   }
 
   function display(d) {
-    shinyReturnOutput(d)
+    
     grandparent
         .datum(d.parent)
         .on("click", transition)
@@ -719,6 +781,7 @@ grandparent.append("text")
         .call(text);
 
     function transition(d) {
+      
       if (transitioning || !d) return;
       transitioning = true;
 
@@ -750,6 +813,7 @@ grandparent.append("text")
         svg.style("shape-rendering", "crispEdges");
         transitioning = false;
       });
+      shinyReturnOutput(d)
     }
 
     return g;
@@ -835,7 +899,7 @@ function draw_partition(root) {
       .text(function(d) { return d.name; })
 
   d3.select(window)
-      .on("click", function() { click(root);shinyReturnOutput(root) })
+      .on("click", function() { click(root) })
 
   function click(d) {
     
@@ -1119,6 +1183,7 @@ function click(d) {
 
 drawLegend(color_input,layout_type,input_x.legend.style);
 addTitle(input_x.title);
+if (input_x.labelStyle)
 d3.select(el).selectAll('.label').attr("style",input_x.labelStyle);
 
       },

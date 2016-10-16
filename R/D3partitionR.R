@@ -65,10 +65,8 @@ D3partitionR <- function(random=F,
       stop("The data should be in one of the following form:
             -a dataframe with two columns, the first one being the paths (and named path) and the second one the value of the paths.
             -a list of two lists with the same properties")
-    else if (!is.list(data$path[[1]]))
-      stop("The path must be a list having the form: [Step A,Step B,...]")
     else
-      CircleData<-ConvertPathToHierarchy(data$path,data$value)[[1]]
+      CircleData<-ConvertPathToHierarchy(data$path,data$value,root_in=TRUE)[[1]]
 
   }
   # forward options using x
