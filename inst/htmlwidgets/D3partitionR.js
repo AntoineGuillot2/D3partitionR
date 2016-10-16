@@ -36,21 +36,42 @@ HTMLWidgets.widget({
     return 1 + depth
   }
   
-  function getChildPath(obj,accu,start) {
+  function getChildPath(obj,accu,start,zoomLayout) {
+    console.log(obj)
     var res=[];
     var accu_tp=accu.concat([obj.name]);
+    var visibleChildren=false;
     if (obj.children) 
     {
       if (!start)
       {
         obj.children.forEach(function (d) {
-            res=res.concat(getChildPath(d,accu_tp))
+          if (zoomLayout | d.is_visible)
+          {            
+            res=res.concat(getChildPath(d,accu_tp,false,zoomLayout))
+            visibleChildren=true
+          }
+        })
+      }
+      else if (obj.is_root)
+      {
+        obj.children.forEach(function (d) {
+          if (zoomLayout || d.is_visible)
+          {
+            res=res.concat(getChildPath(d,accu_tp,true,zoomLayout))
+            visibleChildren=true
+            
+          }
         })
       }
       else
       {
         obj.children.forEach(function (d) {
-            res=res.concat([getChildPath(d,accu_tp)])
+          if (zoomLayout || d.is_visible)
+          {
+            res=res.concat([getChildPath(d,accu_tp,false,zoomLayout)])
+            visibleChildren=true
+          }
         })
       }
     }
@@ -59,20 +80,47 @@ HTMLWidgets.widget({
       if (!start)
       {
         obj._children.forEach(function (d) {
-            res=res.concat(getChildPath(d,accu_tp))
+          if (zoomLayout ||d.is_visible)
+          {            
+            res=res.concat(getChildPath(d,accu_tp,false,zoomLayout))
+            visibleChildren=true
+          }
+        })
+      }
+      else if (obj.is_root)
+      {
+        obj._children.forEach(function (d) {
+          if (zoomLayout || d.is_visible)
+          {
+            res=res.concat(getChildPath(d,accu_tp,true,zoomLayout))
+            visibleChildren=true
+            
+          }
         })
       }
       else
-      {
+            {
         obj._children.forEach(function (d) {
-            res=res.concat([getChildPath(d,accu_tp)])
+          if (zoomLayout || d.is_visible)
+          {
+            res=res.concat([getChildPath(d,accu_tp,false,zoomLayout)])
+            visibleChildren=true
+          }
+
         })
       }
     }
     else
     {
       res=accu_tp;
+      visibleChildren=true;
     }
+    if (!visibleChildren)
+    {
+      console.log("pas de gosses")
+      res=res.concat([accu_tp]);
+    }
+
     return res
   }
   
@@ -89,41 +137,57 @@ HTMLWidgets.widget({
     }
   }
   
-  function getAllLeaf(obj) {
+  function getAllLeaf(obj,zoomLayout) {
     res=[]
+    var visibleChildren=false;
     if (obj.children) 
     {
         obj.children.forEach(function (d) {
-            res=res.concat(getAllLeaf(d))
+          if (zoomLayout | d.is_visible)
+          {
+            res=res.concat(getAllLeaf(d,zoomLayout))
+            visibleChildren=true;
+          }
         })
     }
     else  if (obj._children) 
     {
         obj._children.forEach(function (d) {
-            res=res.concat(getAllLeaf(d))
+          if (zoomLayout | d.is_visible)
+          {
+            res=res.concat(getAllLeaf(d,zoomLayout))
+            visibleChildren=true;
+          }
         })
     }
     else
+    {
+      res=obj.name;
+      visibleChildren=true;
+    }
+    if (!visibleChildren)
     {
       res=obj.name;
     }
     return(res)
   }
   
-  function getAllNodes(obj) {
+  function getAllNodes(obj,zoomLayout) {
     res=[]
     if (obj.children) 
     {
         res=res.concat(obj.name);        
         obj.children.forEach(function (d) {
-            res=res.concat(getAllLeaf(d));
+          if (zoomLayout | d.is_visible)
+          res=res.concat(getAllNodes(d,zoomLayout));
         })
     }
     else if (obj._children) 
     {
         res=res.concat(obj.name);        
         obj._children.forEach(function (d) {
-            res=res.concat(getAllLeaf(d));
+          if (zoomLayout | d.is_visible)
+            res=res.concat(getAllNodes(d,zoomLayout));
         })
     }
     else
@@ -140,10 +204,11 @@ HTMLWidgets.widget({
       renderValue: function(input_x) {
         
 
-var obj_out={clickedStep:"none",currentPath:"none",visiblePaths:"none",visibleLeaf:"none"};
+var obj_out={clickedStep:"none",currentPath:"none",visiblePaths:"none",visibleLeaf:"none",visibleNode:"none"};
 
 
-function shinyReturnOutput(obj){
+function shinyReturnOutput(obj,zoomLayout,root_in){
+
   if (input_x.Input.enabled)
   {
     if (input_x.Input.clickedStep)
@@ -151,12 +216,29 @@ function shinyReturnOutput(obj){
     if (input_x.Input.currentPath)
       obj_out.currentPath=getParentPath(obj,[]);
     if (input_x.Input.visiblePaths)
-      obj_out.visiblePaths=getChildPath(obj,[],true);
+    {
+      if (root_in)
+      obj_out.visiblePaths=getChildPath(root_in,[],true,zoomLayout);
+      else
+      obj_out.visiblePaths=getChildPath(obj,[],true,zoomLayout);
+    }
     if (input_x.Input.visibleLeaf)
-      obj_out.visibleLeaf=getAllLeaf(obj);
+    {
+      if (root_in)
+      obj_out.visibleLeaf=getAllLeaf(root_in,zoomLayout);
+      else
+      obj_out.visibleLeaf=getAllLeaf(obj,zoomLayout);
+      
+    }
     if (input_x.Input.visibleNode)
-      obj_out.visibleNode=getAllNode(obj);
-    Shiny.onInputChange(input_x.Input.Id, obj_out);
+    {
+      if (root_in)
+      obj_out.visibleNode=getAllNodes(root_in,zoomLayout);
+      else
+      obj_out.visibleNode=getAllNodes(obj,zoomLayout);
+  }
+  console.log("new version")
+  Shiny.onInputChange(input_x.Input.Id, obj_out);
   }
 }
 
@@ -352,7 +434,7 @@ var svg_circle = d3.select(el).append("div").append("svg")
 
 function draw_circle(root) {
 
-
+  shinyReturnOutput(root,true)
 
   var focus = root,
       nodes = pack.nodes(root),
@@ -369,7 +451,7 @@ function draw_circle(root) {
         
       })
       .on("click", function(d) { if (focus !== d) zoom(d), d3.event.stopPropagation();
-      shinyReturnOutput(d)
+      shinyReturnOutput(d,true)
 
       });
       
@@ -417,7 +499,7 @@ function draw_circle(root) {
         });
 
   d3.select(el)
-      .on("click", function() { zoom(root);shinyReturnOutput(root);});
+      .on("click", function() { zoom(root);shinyReturnOutput(root,true);});
 
   zoomTo([root.x, root.y, root.r * 2 + margin]);
  
@@ -495,13 +577,15 @@ var svg = d3.select(el).append("svg")
     .attr("transform", "translate(" + margin+ "," + margin + ")");
 
 function drawIndentedTree(flare) {
+  
   flare.x0 = 0;
   flare.y0 = 0;
   updateIdentedTree(root = flare);
+  shinyReturnOutput(root,false,root);
+
 };
 
 function updateIdentedTree(source) {
-  console.log(source)
   // Compute the flattened node list. TODO use d3.layout.hierarchy.
   var nodes = tree.nodes(root);
 
@@ -524,7 +608,7 @@ function updateIdentedTree(source) {
 
   var nodeEnter = node.enter().append("g")
       .attr("class", "node")
-      .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+      .attr("transform", function(d) {d.is_visible=true; return "translate(" + source.y0 + "," + source.x0 + ")"; })
       .style("opacity", 1e-6);
 
   // Enter any new nodes at the parent's previous position.
@@ -579,12 +663,12 @@ function updateIdentedTree(source) {
       .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
       .style("opacity", 1)
       .select("rect")
-      .style("fill",function(d) {return colorizeNode(d); console.log(d);});
+      .style("fill",function(d) {return colorizeNode(d);});
 
   // Transition exiting nodes to the parent's new position.
   node.exit().transition()
       .duration(duration)
-      .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+      .attr("transform", function(d) {d.is_visible=false; return "translate(" + source.y + "," + source.x + ")"; })
       .style("opacity", 1e-6)
       .remove();
 
@@ -622,11 +706,13 @@ function updateIdentedTree(source) {
     d.x0 = d.x;
     d.y0 = d.y;
   });
+  
+
 }
 
 // Toggle children on click.
 function click(d) {
-  shinyReturnOutput(d)
+
   if (d.children) {
     d._children = d.children;
     d.children = null;
@@ -635,6 +721,7 @@ function click(d) {
     d._children = null;
   }
   updateIdentedTree(d);
+  shinyReturnOutput(d,false,root);
 }
 
 drawIndentedTree(input_x.root)
@@ -684,6 +771,7 @@ grandparent.append("text")
 
 
   function initialize(root) {
+    shinyReturnOutput(root,false,root)
 
     root.x = root.y = 0;
     root.dx = width;
@@ -813,7 +901,7 @@ grandparent.append("text")
         svg.style("shape-rendering", "crispEdges");
         transitioning = false;
       });
-      shinyReturnOutput(d)
+      shinyReturnOutput(d,false,root)
     }
 
     return g;
@@ -858,6 +946,7 @@ var partition = d3.layout.partition()
 
 draw_partition(input_x.root);
 function draw_partition(root) {
+  shinyReturnOutput(root,true)
   var g = vis.selectAll("g")
       .data(partition.nodes(root))
     .enter().append("svg:g")
@@ -904,7 +993,7 @@ function draw_partition(root) {
   function click(d) {
     
     if (!d.children) return;
-    shinyReturnOutput(d)
+    shinyReturnOutput(d,true)
 
     kx = (d.y ? width - 40 : width) / (1 - d.y);
     ky = height / d.dx;
@@ -960,7 +1049,7 @@ else if (input_x.type=='sunburst')
 
   draw_sunburst(input_x.root)
 function draw_sunburst( root) {
-
+  shinyReturnOutput(root,true)
 
   svg.selectAll("path")
       .data(partition.nodes(root))
@@ -988,7 +1077,7 @@ function draw_sunburst( root) {
 };
 
 function click(d) {
-  shinyReturnOutput(d)
+  shinyReturnOutput(d,true)
   svg.transition()
       .duration(750)
       .tween("scale", function() {
@@ -1044,6 +1133,7 @@ function drawCollapsibleTree(flare) {
 
   root.children.forEach(collapse);
   update(root);
+  shinyReturnOutput(root,false,root);
 };
 
 
@@ -1069,7 +1159,7 @@ function update(source) {
   // Enter any new nodes at the parent's previous position.
   var nodeEnter = node.enter().append("g")
       .attr("class", "node")
-      .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+      .attr("transform", function(d) {d.is_visible=true; return "translate(" + source.y0 + "," + source.x0 + ")"; })
       .on("click", click);
 
   nodeEnter.append("circle")
@@ -1121,11 +1211,11 @@ function update(source) {
   // Transition exiting nodes to the parent's new position.
   var nodeExit = node.exit().transition()
       .duration(duration)
-      .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+      .attr("transform", function(d) {d.is_visible=false; return "translate(" + source.y + "," + source.x + ")"; })
       .remove();
 
   nodeExit.select("circle")
-      .attr("r", 1e-6);
+  .attr("r", 1e-6);
 
   nodeExit.select("text")
       .style("fill-opacity", 1e-6);
@@ -1165,11 +1255,12 @@ function update(source) {
   d3.select(el).selectAll('.label').attr("style",input_x.labelStyle);
 
     d3.select(el).selectAll('.label').attr("style",input_x.labelStyle);
+
 }
 
 // Toggle children on click.
 function click(d) {
-  shinyReturnOutput(d)
+  
   if (d.children) {
     d._children = d.children;
     d.children = null;
@@ -1178,6 +1269,7 @@ function click(d) {
     d._children = null;
   }
   update(d);
+  shinyReturnOutput(d,false,root)
 }
 }
 
