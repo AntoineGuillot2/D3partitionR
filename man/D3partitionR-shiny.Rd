@@ -25,7 +25,7 @@ string and have \code{'px'} appended.}
 is useful if you want to save an expression in a variable.}
 }
 \description{
-Output and render functions for using CircleTreeMapR within Shiny
+Output and render functions for using D3partitionR within Shiny
 applications and interactive Rmd documents.
 }
 

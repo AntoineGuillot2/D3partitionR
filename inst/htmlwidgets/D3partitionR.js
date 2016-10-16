@@ -37,7 +37,6 @@ HTMLWidgets.widget({
   }
   
   function getChildPath(obj,accu,start,zoomLayout) {
-    console.log(obj)
     var res=[];
     var accu_tp=accu.concat([obj.name]);
     var visibleChildren=false;
@@ -117,7 +116,6 @@ HTMLWidgets.widget({
     }
     if (!visibleChildren)
     {
-      console.log("pas de gosses")
       res=res.concat([accu_tp]);
     }
 
@@ -237,7 +235,6 @@ function shinyReturnOutput(obj,zoomLayout,root_in){
       else
       obj_out.visibleNode=getAllNodes(obj,zoomLayout);
   }
-  console.log("new version")
   Shiny.onInputChange(input_x.Input.Id, obj_out);
   }
 }
@@ -245,7 +242,8 @@ function shinyReturnOutput(obj,zoomLayout,root_in){
 
 
 //removing previous element
-d3.select(el).select(".D3partitionR div svg").remove();
+d3.select(el).selectAll(".D3partitionR div").remove();
+d3.select(el).selectAll(".D3partitionR .partitionLegend").remove();
 d3.select("div .my_tooltip").remove();
 
 //defining color palette
@@ -274,14 +272,12 @@ var div = d3.select(el).append("div")
     margin=20;
 
 //defining width, height, ...
-  if (input_x.width)
-  {
-    width=input_x.width;
-  }
-    if (input_x.height)
-  {
-    height=input_x.height;
-  }
+if (input_x.width != null && input_x.width != undefined)
+ { width=input_x.width;}
+if (input_x.height != null && input_x.height != undefined)
+ { height=input_x.height;}
+
+
   var x = d3.scale.linear()
     .range([0, width]);
 
@@ -380,7 +376,9 @@ function drawLegend(color_input,layout_type,legend_style) {
       .attr("dy", "0.35em")
       .attr("text-anchor", "right")
       .text(function(d) { return d.key; });
-   d3.select(el).select('.partitionLegend').attr("style",legend_style);
+  if (legend_style !=null && legend_style!=undefined)   {
+    d3.select(el).select('.partitionLegend').attr("style",legend_style);
+  }
 }
 
 //function to add a title
@@ -571,7 +569,7 @@ var tree = d3.layout.tree()
 var diagonal = d3.svg.diagonal()
     .projection(function(d) { return [d.y, d.x]; });
 
-var svg = d3.select(el).append("svg")
+var svg = d3.select(el).append("div").append("svg")
     .attr("width", width + 2*margin)
     .append("g")
     .attr("transform", "translate(" + margin+ "," + margin + ")");
@@ -740,7 +738,7 @@ var treemap = d3.layout.treemap()
     .ratio(height / width * 0.5 * (1 + Math.sqrt(5)))
     .round(false);
 
-var svg = d3.select(el).append("svg")
+var svg = d3.select(el).append("div").append("svg")
     .attr("width", width + margin + margin)
     .attr("height", height + margin + margin)
     .style("margin-left", -margin+ "px")
@@ -1040,7 +1038,7 @@ else if (input_x.type=='sunburst')
     .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
     .innerRadius(function(d) { return Math.max(0, y(d.y)); })
     .outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
-  var svg = d3.select(el).append("svg")
+  var svg = d3.select(el).append("div").append("svg")
     .attr("width", width)
     .attr("height", height)
     .attr("class",'sunburst')
@@ -1106,7 +1104,7 @@ var tree = d3.layout.tree()
 var diagonal = d3.svg.diagonal()
     .projection(function(d) { return [d.y, d.x]; });
 
-var svg = d3.select(el).append("svg")
+var svg = d3.select(el).append("div").append("svg")
     .attr("class","collapsibleTree")
     .attr("width", width + 2*margin)
     .attr("height", height + 2*margin)
