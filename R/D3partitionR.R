@@ -24,14 +24,14 @@ library(htmlwidgets)
 #'              - visibleLEaf (default to TRUE), get all visible leafs
 #' @param title options for the title:\cr 
 #'          -text: text to be displayed\cr 
-#'          -fontSize: fontSize (ex: "24px")
-#'          -style: A CSS string to change the title style
+#'          -fontSize: fontSize (ex: "24px")\cr
+#'          -style: A CSS string to change the title style ex:"opacity:0;"
 #' @param legend List of options for the legend:\cr 
 #'                  - type, the legend can be either categorical or sequential. \cr 
 #'                        When setted to categorical, every different step has a different color.\cr 
 #'                        When setted to sequential, the steps with a color provided are used as a reference. The further a steps from these reference, the darker.\cr 
-#'                  - color, Coerce the colors of some steps. Notice: only the colors provided in these are going to be shown in the legend.
-#'                  - style: A CSS string to change the title style ex:"opacity:0;"
+#'                  - color, Coerce the colors of some steps. Notice: only the colors provided in these are going to be shown in the legend.\cr 
+#'                  - style: A CSS string to change the legend style ex:"opacity:0;"
 #' @param labelStyle A CSS string to change the labels style
 #' @param specificOptions Options speficic to some king of charts\cr 
 #'                  - collapsibleIndentedTree: list(bar=T), to true if you want to have bars proportional to the size of the step
