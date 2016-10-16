@@ -336,7 +336,7 @@ function drawLegend(color_input,layout_type,legend_style) {
 
   // Dimensions of legend item: width, height, spacing, radius of rounded rect.
   var li = {
-    w: 75, h: 30, s: 3, r: 3
+    w: 150, h: 30, s: 3, r: 3
   };
   if (layout_type=='circular')
   {
@@ -448,7 +448,7 @@ function draw_circle(root) {
         return colorizeNode(d)
         
       })
-      .on("click", function(d) { if (focus !== d) zoom(d), d3.event.stopPropagation();
+      .on("click", function(d) { if (focus !== d) zoom_circle(d), d3.event.stopPropagation();
       shinyReturnOutput(d,true)
 
       });
@@ -462,7 +462,7 @@ function draw_circle(root) {
 			.attr("d", function(d,i) { return "M "+ -d.r +" 0 A "+ d.r +" "+ d.r +" 0 0 1 "+ d.r +" 0"; })
 			.style("fill", "none");
 
-  var text = svg_circle.selectAll(".label")
+  var text = svg_circle.selectAll(".CircleTreeMapR .label")
       .data(nodes)
       .enter().append("text")
       .attr("class", "label")
@@ -497,11 +497,11 @@ function draw_circle(root) {
         });
 
   d3.select(el)
-      .on("click", function() { zoom(root);shinyReturnOutput(root,true);});
+      .on("click", function() { zoom_circle(root);shinyReturnOutput(root,true);});
 
-  zoomTo([root.x, root.y, root.r * 2 + margin]);
+  zoom_circleTo([root.x, root.y, root.r * 2 + margin]);
  
-  function zoom(d) {
+  function zoom_circle(d) {
     if (d.parent || d.is_root)
     {
 
@@ -514,7 +514,7 @@ function draw_circle(root) {
         .duration(d3.event.altKey ? 7500 : 750)
         .tween("zoom", function(d) {
           var i = d3.interpolateZoom(view, [focus.x, focus.y, focus.r * 2 + margin]);
-          return function(t) { zoomTo(i(t)); };
+          return function(t) { zoom_circleTo(i(t)); };
         });
   
   d3.selectAll(".hiddenArc")
@@ -523,7 +523,7 @@ function draw_circle(root) {
       
 
       
-    d3.selectAll("text")
+    d3.select(el).selectAll(".CircleTreeMapR .label")
         .style("fill-opacity", function(d) { 
           if (d && d.parent)
           {return d.parent === focus ? 1 : 0; }
@@ -544,7 +544,7 @@ function draw_circle(root) {
     
   }}
 
-  function zoomTo(v) {
+  function zoom_circleTo(v) {
     var k = diameter / v[2]; view = v;
     node.attr("transform", function(d) { return "translate(" + (d.x - v[0]) * k + "," + (d.y - v[1]) * k + ")"; });
     circle.attr("r", function(d) { return d.r * k; });
@@ -1251,8 +1251,6 @@ function update(source) {
 });
   
   d3.select(el).selectAll('.label').attr("style",input_x.labelStyle);
-
-    d3.select(el).selectAll('.label').attr("style",input_x.labelStyle);
 
 }
 
