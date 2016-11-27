@@ -6,6 +6,7 @@ HTMLWidgets.widget({
 
   factory: function(el, width, height) {
     
+
     
     function absolutePercentString(max,current,print)
   {
@@ -258,11 +259,10 @@ d3.select("div .my_tooltip").remove();
 
 
 var max_value=input_x.root.cumulative_value;
-
+console.log(input_x.root)
+console.log("new version")
 //creating tooltip
-var div = d3.select(el).append("div")
-    .attr("class", "my_tooltip")
-    .style("opacity", 0);
+
 
 
   var margin = {top: 20, right: 0, bottom: 0, left: 0};
@@ -404,7 +404,10 @@ function drawLegend(color_input,layout_type,legend_style) {
   }
   }
   
-
+//creating tooltip
+var div_tooltip = d3.select(el).append("div")
+    .attr("class", "my_tooltip")
+    .style("opacity", 0);
 
 
 if (input_x.type=='circleTreeMap')
@@ -444,6 +447,14 @@ function draw_circle(root) {
       .enter().append("circle")
       .attr("class", function(d) { return d.parent ?  "node"  : "node node--root"; })
       .attr("id", function(d,i) { return "Circle_"+i; })
+      .attr("node_name",function(d) {return d.name})
+      .attr("value",function(d) {return d.cumulative_value})
+      .attr("parent_value",function(d) {
+        if (d.parent) 
+          {return d.parent.cumulative_value}
+        else 
+          return d.cumulative_value
+      })
       .style("fill",function(d) {
         return colorizeNode(d)
         
@@ -451,7 +462,8 @@ function draw_circle(root) {
       .on("click", function(d) { if (focus !== d) zoom_circle(d), d3.event.stopPropagation();
       shinyReturnOutput(d,true)
 
-      });
+      })
+      ;
       
   var hidden_arc=svg_circle.selectAll(".hiddenArc")
       .data(nodes)
@@ -478,23 +490,7 @@ function draw_circle(root) {
   var node = svg_circle.selectAll("circle,text");
 
   var node_part=svg_circle.selectAll("circle");
-    node_part.on("mousemove", function(d) {
-            div.transition()
-                .duration(200)
-                .style("opacity", .9);
-                div .html("<table style='width:100%'><tr><th>Name:</th><td>"+ d.name + "</td>"+
-                          "<tr><th>"+ units +"</th><td>"+ d.value +"</td>"+
-                          absolutePercentString(max_value,d.value,input_x.tooltipOptions.showAbsolutePercent)+
-                          relativePercentString(d.parent.value,d.value,input_x.tooltipOptions.showRelativePercent)
-                          +"</table>")
-                    .style("left", (d3.event.pageX - 20) + "px")
-                    .style("top", (d3.event.pageY - 50) + "px");
-            })
-        .on("mouseout", function(d) {
-            div.transition()
-                .duration(500)
-                .style("opacity", 0);
-        });
+
 
   d3.select(el)
       .on("click", function() { zoom_circle(root);shinyReturnOutput(root,true);});
@@ -552,6 +548,20 @@ function draw_circle(root) {
 }
 draw_circle(input_x.root);
 d3.select(self.frameElement).style("height", diameter + "px");
+$(".node").tooltip({
+
+      type: "popover",
+      html: true,
+      title: function()  {console.log(this);return "<table style='width:100%'><tr><th>Name:</th><td>"+ this.getAttribute("node_name") + "</td>"+
+                          "<tr><th>"+"Value: " +"</th><td>"+ this.getAttribute("value")  +
+                          absolutePercentString(max_value,this.getAttribute("value") ,input_x.tooltipOptions.showAbsolutePercent)+
+                          relativePercentString(this.getAttribute("parent_value"),this.getAttribute("value"),input_x.tooltipOptions.showRelativePercent)+"</table>"}
+  
+})
+
+
+
+
 }
 else if (input_x.type=='collapsibleIndentedTree')
 {
@@ -827,21 +837,13 @@ grandparent.append("text")
 
     g.filter(function(d) { return d._children; })
         .classed("children", true)
-        .on("mousemove", function(d) {
-            div.transition()
-                .duration(200)
-                .style("opacity", .9);
-                div .html("<table style='width:100%'><tr><th>Name:</th><td>"+ d.name + "</td>"+
-                          "<tr><th>Numbers:</th><td>"+ d.value +"</td>"+
-                          absolutePercentString(max_value,d.value,input_x.tooltipOptions.showAbsolutePercent)+
-                          relativePercentString(d.parent.value,d.value,input_x.tooltipOptions.showRelativePercent)+"</table>")
-                    .style("left", (d3.event.pageX - 20) + "px")
-                    .style("top", (d3.event.pageY - 50) + "px");
-            })
-        .on("mouseout", function(d) {
-            div.transition()
-                .duration(500)
-                .style("opacity", 0);
+        .attr("node_name",function(d){return d.name})
+        .attr("value",function(d) {return d.cumulative_value})
+        .attr("parent_value",function(d) {
+        if (d.parent) 
+          {return d.parent.cumulative_value}
+        else 
+          return d.cumulative_value
         })
         .on("click", transition);
 
@@ -849,7 +851,28 @@ grandparent.append("text")
         .data(function(d) { return d._children || [d]; })
         .enter().append("rect")
         .attr("class", "child")
+        .attr("node_name",function(d){return d.name})
+        .attr("value",function(d) {return d.value})
+        .attr("parent_value",function(d) {
+        if (d.parent) 
+          {return d.parent.value}
+        else 
+          return d.value
+        })
         .call(rect);
+        
+
+
+    $(".children").tooltip({
+
+      type: "popover",
+      html: true,
+      title: function()  {console.log(this);return "<table style='width:100%'><tr><th>Name:</th><td>"+ this.getAttribute("node_name") + "</td>"+
+                          "<tr><th>"+"Value: " +"</th><td>"+ this.getAttribute("value")  +
+                          absolutePercentString(max_value,this.getAttribute("value") ,input_x.tooltipOptions.showAbsolutePercent)+
+                          relativePercentString(this.getAttribute("parent_value"),this.getAttribute("value"),input_x.tooltipOptions.showRelativePercent)+"</table>"}
+  
+})
 
     g.append("rect")
         .attr("class", "parent")
@@ -949,6 +972,15 @@ function draw_partition(root) {
       .data(partition.nodes(root))
     .enter().append("svg:g")
       .attr("transform", function(d) { return "translate(" +x(d.y) + "," + (y(d.x)) + ")"; })
+      .attr("node_name",function(d) {return d.name})
+      .attr("value",function(d) {return d.cumulative_value})
+      .attr("parent_value",function(d) {
+        if (d.parent) 
+          {return d.parent.cumulative_value}
+        else 
+          return d.cumulative_value
+      })
+      .attr("class","node")
       .on("click", click)
       ;
 
@@ -961,22 +993,6 @@ function draw_partition(root) {
       .attr("class", function(d) { return d.children ? "parent" : "child"; })
         .style("fill",function(d) {return colorizeNode(d)
       })
-      .on("mousemove", function(d) {
-            div.transition()
-                .duration(200)
-                .style("opacity", .9);
-                div .html("<table style='width:100%'><tr><th>Name:</th><td>"+ d.name + "</td>"+
-                          "<tr><th>Numbers:</th><td>"+ d.value +"</td>"+
-                          absolutePercentString(max_value,d.value,input_x.tooltipOptions.showAbsolutePercent)+
-                          relativePercentString(d.parent.value,d.value,input_x.tooltipOptions.showRelativePercent)+"</table>")
-                    .style("left", (d3.event.pageX - 20) + "px")
-                    .style("top", (d3.event.pageY - 50) + "px");
-            })
-      .on("mouseout", function(d) {
-            div.transition()
-                .duration(500)
-                .style("opacity", 0);
-        });
 
   g.append("svg:text")
       .attr("transform", transform)
@@ -987,6 +1003,16 @@ function draw_partition(root) {
 
   d3.select(window)
       .on("click", function() { click(root) })
+  $(".node").tooltip({
+
+      type: "popover",
+      html: true,
+      title: function()  {console.log(this);return "<table style='width:100%'><tr><th>Name:</th><td>"+ this.getAttribute("node_name") + "</td>"+
+                          "<tr><th>"+"Value: " +"</th><td>"+ this.getAttribute("value")  +
+                          absolutePercentString(max_value,this.getAttribute("value") ,input_x.tooltipOptions.showAbsolutePercent)+
+                          relativePercentString(this.getAttribute("parent_value"),this.getAttribute("value"),input_x.tooltipOptions.showRelativePercent)+"</table>"}
+  
+})
 
   function click(d) {
     
@@ -1054,24 +1080,27 @@ function draw_sunburst( root) {
       .enter().append("path")
       .attr("class","sunburstArc")
       .attr("d", arc)
-        .style("fill",function(d) {return colorizeNode(d)})
-      .on("mousemove", function(d) {
-            div.transition()
-                .duration(200)
-                .style("opacity", .9);
-                div .html("<table style='width:100%'><tr><th>Name:</th><td>"+ d.name + "</td>"+
-                          "<tr><th>Numbers:</th><td>"+ d.value +"</td>"+
-                          absolutePercentString(max_value,d.value,input_x.tooltipOptions.showAbsolutePercent)+
-                          relativePercentString(d.parent.value,d.value,input_x.tooltipOptions.showRelativePercent)+"</table>")
-                    .style("left", (d3.event.pageX - 20) + "px")
-                    .style("top", (d3.event.pageY - 50) + "px");
-            })
-        .on("mouseout", function(d) {
-            div.transition()
-                .duration(500)
-                .style("opacity", 0);
-        })
+      .attr("node_name",function(d) {return d.name})
+      .attr("value",function(d) {return d.cumulative_value})
+      .attr("parent_value",function(d) {
+        if (d.parent) 
+          {return d.parent.cumulative_value}
+        else 
+          return d.cumulative_value
+      })
+      .style("fill",function(d) {return colorizeNode(d)})
       .on("click", click);
+      
+$(".sunburstArc").tooltip({
+
+      type: "popover",
+      html: true,
+      title: function()  {console.log(this);return "<table style='width:100%'><tr><th>Name:</th><td>"+ this.getAttribute("node_name") + "</td>"+
+                          "<tr><th>"+"Value: " +"</th><td>"+ this.getAttribute("value")  +
+                          absolutePercentString(max_value,this.getAttribute("value") ,input_x.tooltipOptions.showAbsolutePercent)+
+                          relativePercentString(this.getAttribute("parent_value"),this.getAttribute("value"),input_x.tooltipOptions.showRelativePercent)+"</table>"}
+  
+})      
 };
 
 function click(d) {
@@ -1158,28 +1187,28 @@ function update(source) {
   var nodeEnter = node.enter().append("g")
       .attr("class", "node")
       .attr("transform", function(d) {d.is_visible=true; return "translate(" + source.y0 + "," + source.x0 + ")"; })
+      .attr("node_name",function(d) {return d.name})
+      .attr("value",function(d) {return d.cumulative_value})
+      .attr("parent_value",function(d) {
+        if (d.parent) 
+          {return d.parent.cumulative_value}
+        else 
+          return d.cumulative_value
+      })
       .on("click", click);
 
   nodeEnter.append("circle")
       .attr("r", 1e-6)
-      .style("fill", function(d) { return colorizeNode(d)})
-      .on("mousemove", function(d) {
-            div.transition()
-                .duration(200)
-                .style("opacity", .9);
-                div .html("<table style='width:100%'><tr><th>Name:</th><td>"+ d.name + "</td>"+
-                          "<tr><th>"+ units +"</th><td>"+ d.cumulative_value +"</td>"+
-                          absolutePercentString(max_value,d.cumulative_value,input_x.tooltipOptions.showAbsolutePercent)+
-                          relativePercentString(d.parent.cumulative_value,d.cumulative_value,input_x.tooltipOptions.showRelativePercent)
-                          +"</table>")
-                    .style("left", (d3.event.pageX - 20) + "px")
-                    .style("top", (d3.event.pageY - 50) + "px");
-            })
-        .on("mouseout", function(d) {
-            div.transition()
-                .duration(500)
-                .style("opacity", 0);
-        });
+      .style("fill", function(d) { return colorizeNode(d)});
+     
+     $(".node").tooltip({
+
+      type: "popover",
+      html: true,
+      title: function()  {console.log(this);return "<table style='width:100%'><tr><th>Name:</th><td>"+ this.getAttribute("node_name") + "</td>"+
+                          "<tr><th>"+"Value: " +"</th><td>"+ this.getAttribute("value")  +
+                          absolutePercentString(max_value,this.getAttribute("value") ,input_x.tooltipOptions.showAbsolutePercent)+
+                          relativePercentString(this.getAttribute("parent_value"),this.getAttribute("value"),input_x.tooltipOptions.showRelativePercent)+"</table>"}})
       
 
   nodeEnter.append("text")

@@ -6,12 +6,21 @@ Authors@R: c(person("Antoine", "GUILLOT", email = "antoine.guil@outlook.fr", rol
         "Mike", "Bostock"
         , role = c("aut", "cph")
         , comment = "d3.js library in htmlwidgets/lib, http://d3js.org. The partitionChart, sunburst, the treemap, the zoomable circlePacking, the collapsible indented tree and the collapsible tree are all derived from his works."
-      ))
-Description: Plotting hierarchical plots in R such as Sunburst, Treemap, Circle Treemap, Partition Chart, collpasible indented tree and collapsible tree.
+      ),person(family = "jQuery Foundation", role = "cph", comment = "jQuery library"),
+    person(family = "jQuery contributors", role = c("ctb", "cph"),
+      comment = "jQuery library; authors listed in inst/htmlwidgets/lib/jquery/jquery-AUTHORS.txt"
+    ),person(family = "HubSpot", role = "cph", comment = "Tether creators and contributors"),
+    person(family = "Twitter Inc", role = "cph", comment = "Boostrap creators"),
+    person(family = "Bootstrap contributor", role = "cph", comment = "Bootstrap contributors")
+    )
+Description: Plotting hierarchical plots in R such as Sunburst, Treemap, Circle
+    Treemap, Partition Chart, collapsible indented tree and collapsible tree.
 Depends:
     R (>= 3.3.1)
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 5.0.1.9000
-Imports: htmlwidgets, stats
+RoxygenNote: 5.0.1
+Imports:
+    htmlwidgets,
+    stats

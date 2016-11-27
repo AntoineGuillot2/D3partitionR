@@ -1,5 +1,4 @@
 library(htmlwidgets)
-
 #' D3partitionR
 #'
 #' This function generates the partition chart from your data or from random data

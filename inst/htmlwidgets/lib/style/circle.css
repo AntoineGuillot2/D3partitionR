@@ -1,6 +1,10 @@
 .CircleTreeMapR .node {
   cursor: pointer;
 }
+.CircleTreeMapR-tooltip-positioner {
+    position: fixed !important;
+    left: 130px !important;
+}
 
 .CircleTreeMapR  .node:hover {
   stroke: #000;
