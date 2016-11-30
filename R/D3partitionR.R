@@ -55,8 +55,9 @@ D3partitionR <- function(random=F,
                          tooltipOptions=list(showAbsolutePercent=T,showRelativePercent=T),
                          width = NULL, height = NULL, elementId = NULL,
                          Input=list(enabled=F,id="unique_id",clickedStep=T,currentPath=T,visiblePaths=T,visibleLeaf=T,visibleNode=T),
-                         title=list(text=NULL,fontSize="auto"),
-                         legend=list(type='categorical',color=NULL),
+                         title=list(text=NULL,fontSize="auto",no_draw=TRUE),
+                         legend=list(no_show=TRUE),
+                         trail=FALSE,
                          labelStyle=NULL,
                          specificOptions=NULL) {
 
@@ -86,6 +87,7 @@ D3partitionR <- function(random=F,
     Input=Input,
     width=width,
     height=height,
+    trail=trail,
     labelStyle=labelStyle,
     specificOptions=specificOptions
   )
@@ -119,7 +121,7 @@ D3partitionR <- function(random=F,
 #' @name D3partitionR-shiny
 #'
 #' @export
-D3partitionROutput <- function(outputId, width = '100%', height = '400px'){
+D3partitionROutput <- function(outputId, width = '100%', height = '700px'){
   htmlwidgets::shinyWidgetOutput(outputId, 'D3partitionR', width, height, package = 'D3partitionR')
 }
 

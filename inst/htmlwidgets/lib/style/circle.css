@@ -1,3 +1,14 @@
+.D3partitionR {
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%;
+    vertical-align: top;
+    overflow: hidden;
+}
+
+
+
 .CircleTreeMapR .node {
   cursor: pointer;
 }
@@ -21,6 +32,8 @@
 }
 
 
+
+
 .CircleTreeMapR .label {
   font: 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
   text-anchor: middle;
@@ -35,6 +48,10 @@
 
 .CircleTreeMapR {
   text-align: center;
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 0;
 
 }
 

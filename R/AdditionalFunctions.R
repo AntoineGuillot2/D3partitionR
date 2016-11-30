@@ -43,12 +43,11 @@ ConvertPathToHierarchy<-function(list_path,list_value,root_in=FALSE)
   res<<-res
   return(res)
 }
-
 #' @import stats
-generateRandomPath<-function(step=2,n_path=1000)
+generateRandomPath<-function(step=6,n_path=1000)
 {
   SAMPLE<-sample(LETTERS,20)
-  list_path=unique(replicate(n_path,c('step A',paste('step', sample(SAMPLE,sample(sample(2:step,1),1))))))
+  list_path=unique(replicate(n_path,c('A',sample(SAMPLE,sample(sample(2:step,1),1)))))
   list_value=round(abs(rnorm(n_path,50,200)))[1:length(list_path)]
   RandomData<-ConvertPathToHierarchy(list_path,list_value,root_in=T)
   return(RandomData[[1]])
