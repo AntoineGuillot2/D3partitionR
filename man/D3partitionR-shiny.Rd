@@ -6,7 +6,7 @@
 \alias{renderD3partitionR}
 \title{Shiny bindings for CircleTreeMapR}
 \usage{
-D3partitionROutput(outputId, width = "100\%", height = "400px")
+D3partitionROutput(outputId, width = "100\%", height = "700px")
 
 renderD3partitionR(expr, env = parent.frame(), quoted = FALSE)
 }

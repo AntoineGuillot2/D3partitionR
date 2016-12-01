@@ -5,46 +5,52 @@ HTMLWidgets.widget({
     type: 'output',
 
     factory: function(el, width, height) {
-      
-      // Generate a string that describes the points of a breadcrumb polygon.
+
+        // Generate a string that describes the points of a breadcrumb polygon.
         function breadcrumbPoints(d, i) {
-          var points = [];
-          points.push("0,0");
-          points.push(b.w + ",0");
-          points.push(b.w + b.t + "," + (b.h / 2));
-          points.push(b.w + "," + b.h);
-          points.push("0," + b.h);
-          if (i > 0) { // Leftmost breadcrumb; don't include 6th vertex.
-            points.push(b.t + "," + (b.h / 2));
-          }
-          return points.join(" ");
+            var points = [];
+            points.push("0,0");
+            points.push(b.w + ",0");
+            points.push(b.w + b.t + "," + (b.h / 2));
+            points.push(b.w + "," + b.h);
+            points.push("0," + b.h);
+            if (i > 0) { // Leftmost breadcrumb; don't include 6th vertex.
+                points.push(b.t + "," + (b.h / 2));
+            }
+            return points.join(" ");
         }
-        
+        //breadcrum parameters
         var b = {
-            w: 55, h: 30, s: 3, t: 10
-          };
+            w: 55,
+            h: 30,
+            s: 3,
+            t: 10
+        };
 
 
-
+        //compute the proportion of x left from the beginning
         function absolutePercentString(max, current, print) {
             if (print) {
                 return ("<tr><th>From the beginning</th><td>" + Math.round(current / max * 1000) / 10 + "% </td>");
             } else
                 return ("");
         }
-
+        //compute the proprtion of x left from previous step
         function relativePercentString(max, current, print) {
             if (print) {
                 return ("<tr><th>From previous step</th><td>" + Math.round(current / max * 1000) / 10 + "% </td>");
             } else
                 return ("");
         }
-
+        //recursive function which compute the depth of a tree
         function getDepth(obj) {
             var depth = 0;
+            //restrict to node with children
             if (obj.children) {
                 obj.children.forEach(function(d) {
+                    //getting depth of all the children
                     var tmpDepth = getDepth(d)
+                    //only keeping the max depth
                     if (tmpDepth > depth) {
                         depth = tmpDepth
                     }
@@ -53,11 +59,14 @@ HTMLWidgets.widget({
             return 1 + depth
         }
 
+        //Getting all the path of a given tree i?e? all the succession of nodes
         function getChildPath(obj, accu, start, zoomLayout) {
             var res = [];
             var accu_tp = accu.concat([obj.name]);
             var visibleChildren = false;
+            //restricting to node with children
             if (obj.children) {
+              //distinction betwenn root, ongoing nodes and starting node
                 if (!start) {
                     obj.children.forEach(function(d) {
                         if (zoomLayout | d.is_visible) {
@@ -81,7 +90,9 @@ HTMLWidgets.widget({
                         }
                     })
                 }
-            } else if (obj._children) {
+            }
+            // taking into account _children (useful for the treemap layout)
+            else if (obj._children) {
                 if (!start) {
                     obj._children.forEach(function(d) {
                         if (zoomLayout || d.is_visible) {
@@ -106,10 +117,14 @@ HTMLWidgets.widget({
 
                     })
                 }
-            } else {
+            } 
+            //base case
+            else 
+            {
                 res = accu_tp;
                 visibleChildren = true;
             }
+            //case when no visible children
             if (!visibleChildren) {
                 res = res.concat([accu_tp]);
             }
@@ -117,9 +132,9 @@ HTMLWidgets.widget({
             return res
         }
 
-
+        //going up in the tree to get the path to the root
         function getParentPath(obj, accu) {
-          console.log(accu)
+            console.log(accu)
             var accu_tp = accu.concat(obj.name);
             if (obj.parent) {
                 return (getParentPath(obj.parent, accu_tp))
@@ -127,16 +142,25 @@ HTMLWidgets.widget({
                 return (accu_tp)
             }
         }
-        
+        //Function used for the trail
+        //Return the list of {name,value,color} from this node to the root
         function getParentPathAndValue(obj, accu) {
-            accu.push({name:obj.name, value:obj.value,color:obj.color})
+            accu.push({
+                name: obj.name,
+                value: obj.value,
+                color: obj.color
+            })
             if (obj.parent) {
                 return (getParentPathAndValue(obj.parent, accu))
-            } else {
+            } else
+            {
+              
+            //Base case, we need to reverse to get the list from the root to the node
                 return accu.reverse()
             }
         }
-
+        //Function to get all leaf of a given tree
+        //Used in the shiny output; mays be useful when the real information is located in the nodes
         function getAllLeaf(obj, zoomLayout) {
             res = []
             var visibleChildren = false;
@@ -163,7 +187,7 @@ HTMLWidgets.widget({
             }
             return (res)
         }
-
+        //Returning all nodes of the current tree
         function getAllNodes(obj, zoomLayout) {
             res = []
             if (obj.children) {
@@ -190,7 +214,7 @@ HTMLWidgets.widget({
 
             renderValue: function(input_x) {
 
-
+                //Initialisatio of the output
                 var obj_out = {
                     clickedStep: "none",
                     currentPath: "none",
@@ -198,116 +222,133 @@ HTMLWidgets.widget({
                     visibleLeaf: "none",
                     visibleNode: "none"
                 };
-                function InitializeTrail(svg_grid){
-                  
-                  if (input_x.trail)
-                  {
-                    
-                    margin_top=margin+60;
-                    svg_grid.append("g").append("rect")
-                                .attr("width","100%")
-                                .attr("height",82)
-                                .style("fill","white")
-                                .attr("transform", "translate(" + 0 + "," + (margin_top-margin-2) + ")")
-                    if (input_x.title.no_draw==null)
-                    {
-                      
-                      margin_top=margin_top
-                      
-                      console.log(margin_top)
+                //Initilalize the trail where the current sequence will be displayed
+                function InitializeTrail(svg_grid) {
+
+                    if (input_x.trail) {
+                        
+                        margin_top = margin;
+                        //Append a white rectangle to avoid problm when zooming 
+                        svg_grid.append("g").append("rect")
+                            .attr("width", "100%")
+                            .attr("height", 82)
+                            .style("fill", "white")
+                            .attr("transform", "translate(" + 0 + "," + (margin_top - margin - 2) + ")")
+                        if (input_x.title.no_draw == null) {
+
+                            margin_top = margin_top + 60
+                        }
+                        //remove previous trail
+                        d3.select(el).selectAll(".D3partitionR .trail").remove();
+                        el_id = el.getAttribute('id')
+                        //add trail to the svg svg_grid
+                        svg_grid.append("g")
+                            .attr("transform", "translate(" + margin + "," + margin_top + ")")
+                            .attr("id", el_id + "Trail")
+                            .attr('class', 'trail')
+
+
+
                     }
-                    
-                    d3.select(el).selectAll(".D3partitionR .trail").remove();
-                    el_id=el.getAttribute('id')
-                    svg_grid.append("g")
-                        .attr("transform", "translate(" + margin + "," + margin_top + ")")
-                        .attr("id",el_id+"Trail")
-                        .attr('class', 'trail')
-                        
-                        
-                    
-                  }
+                }
+                //Computing margin chart depending on the user input
+                function marginChart() {
+                    margin_top_chart = 0;
+                    margin_right = 20;
+                    if (input_x.title.no_draw == null) {
+                        margin_top_chart = margin_top_chart + 60
+                    }
+                    if (input_x.trail) {
+                        margin_top_chart = margin_top_chart + 80
+                    }
+                    if (!input_x.legend.no_show) {
+                        margin_right = margin_right + 120
+                    }
+                    console.log({
+                        top: margin_top_chart,
+                        right: margin_right,
+                        left: margin,
+                        bottom: margin
+                    })
+                    return {
+                        top: margin_top_chart,
+                        right: margin_right,
+                        left: margin,
+                        bottom: margin
+                    }
                 }
                 
-                function marginChart(){
-                  margin_top_chart=0;
-                  margin_right=20;
-                  if (input_x.title.no_draw==null)
-                  {
-                    margin_top_chart=margin_top_chart+60
-                  }
-                  if (input_x.trail)
-                  {
-                    margin_top_chart=margin_top_chart+80
-                  }
-                  if (!input_x.legend.no_show)
-                  {
-                    margin_right=margin_right+120
-                  }
-                  console.log({top:margin_top_chart, right:margin_right, left:margin,bottom:margin})
-                  return {top:margin_top_chart, right:margin_right, left:margin,bottom:margin}
-                  }
-                
-                function DrawTrail(obj){
-                if (input_x.trail)
-                  {
-                  el_id=el.getAttribute('id')
-                  d3.select("#"+el_id+"Trail")
-                        .selectAll("g").remove();
-                        
-                  var accu_init=[];
-                  currentPath=getParentPathAndValue(obj, accu_init);
-                 
-                  var trail=d3.select("#"+el_id+"Trail")
-                        .selectAll("g")
-                    		.data(currentPath)
-                    		
-                    		
-                  var entering = trail.enter()
-                  .append("svg:g")
+                //Draw the trail
+                function DrawTrail(obj) {
+                    if (input_x.trail) {
+                        el_id = el.getAttribute('id')
+                        d3.select("#" + el_id + "Trail")
+                            .selectAll("g").remove();
+
+                        var accu_init = [];
+                        currentPath = getParentPathAndValue(obj, accu_init);
+
+                        var trail = d3.select("#" + el_id + "Trail")
+                            .selectAll("g")
+                            .data(currentPath)
 
 
-                  step_padding=b.w;
-                  entering.append("svg:polygon")
-                        .attr("points", breadcrumbPoints)
-                        .style("fill",function(d){return d.color})
-        	              .style('opacity',0.6)
-                        .style("stroke", 'black')
-        	              .style("stroke-opacity",1)
-        	              .style("stroke-width",2)
-        	              .attr("class","trailStep")
-        	              .attr("node_name",function(d){return(d.name)})
-        	              .attr("value",function(d){return(d.value)})
-        	              
-        	          entering.append("svg:text")
-                        .attr("x", (b.w + b.t) / 2)
-                        .attr("y", b.h / 2)
-                        .attr("dy", "0.35em")
-                        .attr("text-anchor", "middle")
-                        .text(function(d) { return d.name; });
-        	              
-        	              
-        	         trail.attr("transform", function(d, i) {0
-                          return "translate(" + i * (step_padding+ b.t) + ", 0)";
-                        });   
-                      $(".trailStep").tooltip({
+                        var entering = trail.enter()
+                            .append("svg:g")
 
-                        type: "popover",
-                        html: true,
-                        title: function() {
-                            return "<table style='width:100%'><tr><th>Name:</th><td>" + this.getAttribute("node_name") + "</td>" +
-                                "<tr><th>" + "Value: " + "</th><td>" + this.getAttribute("value") +"</td>" +"</table>"
-                        }})
+
+                        step_padding = b.w;
+                        entering.append("svg:polygon")
+                            .attr("points", breadcrumbPoints)
+                            .style("fill", function(d) {
+                                return d.color
+                            })
+                            .style('opacity', 0.6)
+                            .style("stroke", 'black')
+                            .style("stroke-opacity", 1)
+                            .style("stroke-width", 2)
+                            .attr("class", "trailStep")
+                            .attr("node_name", function(d) {
+                                return (d.name)
+                            })
+                            .attr("value", function(d) {
+                                return (d.value)
+                            })
+
+                        entering.append("svg:text")
+                            .attr("x", (b.w + b.t) / 2)
+                            .attr("y", b.h / 2)
+                            .attr("dy", "0.35em")
+                            .attr("text-anchor", "middle")
+                            .text(function(d) {
+                                return d.name;
+                            });
+
+
+                        trail.attr("transform", function(d, i) {
+                            0
+                            return "translate(" + i * (step_padding + b.t) + ", 0)";
+                        });
+                        $(".trailStep").tooltip({
+
+                            type: "popover",
+                            html: true,
+                            title: function() {
+                                return "<table style='width:100%'><tr><th>Name:</th><td>" + this.getAttribute("node_name") + "</td>" +
+                                    "<tr><th>" + "Value: " + "</th><td>" + this.getAttribute("value") + "</td>" + "</table>"
+                            }
+                        })
 
                     }
-        	              
-                  }
 
-                
+                }
+
+
 
 
                 function shinyReturnOutput(obj, zoomLayout, root_in) {
-
+                  
+                  //Returning the first output before any action happens
                     if (input_x.Input.enabled) {
                         if (input_x.Input.clickedStep)
                             obj_out.clickedStep = obj.name;
@@ -335,8 +376,8 @@ HTMLWidgets.widget({
                         Shiny.onInputChange(input_x.Input.Id, obj_out);
                     }
                 }
-                
-                                //function to manage node color 
+
+                //function to manage node color 
                 function colorizeNode(d) {
                     if (d.name in color_input) {
                         d.color = color_input[d.name];
@@ -356,85 +397,83 @@ HTMLWidgets.widget({
                         }
                     }
                 }
-                
 
-                    
-                    
-                
+
+
 
                 //function to add legend
-                function drawLegend(color_input, layout_type, legend_style,svg_grid) {
-                  if (!input_x.legend.no_show)
-                  {
-                    console.log("ok")
-                    // Dimensions of legend item: width, height, spacing, radius of rounded rect.
-                    var li = {
-                        w: 150,
-                        h: 30,
-                        s: 3,
-                        r: 3
-                    };
-                    if (layout_type == 'circular') {
-                        var legendLeft = Math.min(height_chart, width_chart) + 30;
-                    } else if (layout_type == 'rect') {
-                        var legendLeft = width_chart + 30;
+                function drawLegend(color_input, layout_type, legend_style, svg_grid) {
+                    if (!input_x.legend.no_show) {
+                        console.log("ok")
+                            // Dimensions of legend item: width, height, spacing, radius of rounded rect.
+                        var li = {
+                            w: 150,
+                            h: 30,
+                            s: 3,
+                            r: 3
+                        };
+                        if (layout_type == 'circular') {
+                            var legendLeft = Math.min(height_chart, width_chart) + 30;
+                        } else if (layout_type == 'rect') {
+                            var legendLeft = width_chart + 30;
+                        }
+                        
+                        //appending white rect to the svg grid to avoid problem when zooming
+                        svg_grid.append("rect")
+                            .attr("width", 180)
+                            .attr("height", "100%")
+                            .style("fill", "white")
+                            .attr("transform", "translate(" + legendLeft + "," + 0 + ")")
+
+                        var legend = svg_grid.append("g")
+                            .attr('class', 'partitionLegend')
+                            .attr("transform", "translate(" + legendLeft + "," + height / 3 + ")");
+
+
+
+                        var g = legend.selectAll("g")
+                            .data(d3.entries(color_input))
+                            .enter().append("svg:g")
+                            .attr("transform", function(d, i) {
+                                return "translate(0," + i * (li.h + li.s) + ")";
+                            });
+
+                        g.append("svg:rect")
+                            .attr("rx", li.r)
+                            .attr("ry", li.r)
+                            .attr("width", li.h)
+                            .attr("height", li.h)
+                            .style("fill", function(d) {
+                                return d.value;
+                            });
+
+                        g.append("svg:text")
+                            .attr("class", "legendText")
+                            .attr("x", li.h)
+                            .attr("y", li.h / 2)
+                            .attr("dy", "0.35em")
+                            .attr("text-anchor", "right")
+                            .text(function(d) {
+                                return d.key;
+                            });
+                        if (legend_style != null && legend_style != undefined) {
+                            d3.select(el).select('.partitionLegend').attr("style", legend_style);
+                        }
+
                     }
-                    svg_grid.append("rect")
-                                .attr("width",180)
-                                .attr("height","100%")
-                                .style("fill","white")
-                                .attr("transform",  "translate(" + legendLeft + "," +  0 + ")" )
-
-                    var legend = svg_grid.append("g")
-                        .attr('class', 'partitionLegend')
-                        .attr("transform",  "translate(" + legendLeft + "," +  height / 3+ ")" );
-                      
-
-
-                    var g = legend.selectAll("g")
-                        .data(d3.entries(color_input))
-                        .enter().append("svg:g")
-                        .attr("transform", function(d, i) {
-                            return "translate(0," + i * (li.h + li.s) + ")";
-                        });
-
-                    g.append("svg:rect")
-                        .attr("rx", li.r)
-                        .attr("ry", li.r)
-                        .attr("width", li.h)
-                        .attr("height", li.h)
-                        .style("fill", function(d) {
-                            return d.value;
-                        });
-
-                    g.append("svg:text")
-                        .attr("class", "legendText")
-                        .attr("x", li.h)
-                        .attr("y", li.h / 2)
-                        .attr("dy", "0.35em")
-                        .attr("text-anchor", "right")
-                        .text(function(d) {
-                            return d.key;
-                        });
-                    if (legend_style != null && legend_style != undefined) {
-                        d3.select(el).select('.partitionLegend').attr("style", legend_style);
-                    }
-  
-                  }
                 }
 
                 //function to add a title
-                function addTitle(title,svg_grid) {
+                function addTitle(title, svg_grid) {
                     if (title.text) {
                         svg_grid.append("rect")
-                                .attr("width","100%")
-                                .attr("height",60)
-                                .style("fill","white")
+                            .attr("width", "100%")
+                            .attr("height", 60)
+                            .style("fill", "white")
                         var title_svg = svg_grid.append("g").append("text")
                             .attr('class', 'partitionTitle')
                             .text(title.text)
-                            .attr("transform", "translate(" + width/2 + ","+ 2*margin +")");
-                            ;
+                            .attr("transform", "translate(" + width / 2 + "," + 2 * margin + ")");;
 
                         svg_grid.select('.partitionTitle').attr("style", title.style);
                         title_svg.attr("text-anchor", "middle")
@@ -444,8 +483,8 @@ HTMLWidgets.widget({
                                 } else
                                     return title.fontSize
                             });
-                            
-                        
+
+
                     }
                 }
 
@@ -465,29 +504,27 @@ HTMLWidgets.widget({
                     .interpolate(d3.interpolateHcl);
                 var color_cat = d3.scale.category20c();
 
-                function layout_type_fun(type){
-                  if (type in ['circleTreeMap','sunburst'])
-                    return 'circular'
-                  else
-                    return 'rect'
-                    
+                function layout_type_fun(type) {
+                    if (type in ['circleTreeMap', 'sunburst'])
+                        return 'circular'
+                    else
+                        return 'rect'
+
                 }
 
                 var max_value = input_x.root.cumulative_value;
-                
+
                 console.log("new version")
-                
+
                 //setting up chart dimmension according to user input
-                
-                
-                
+
 
 
 
                 width = 700,
                     height = 700,
                     formatNumber = d3.format(",d");
-                    
+
 
                 //defining width, height, ...
                 if (input_x.width != null && input_x.width != undefined) {
@@ -497,12 +534,12 @@ HTMLWidgets.widget({
                     height = input_x.height;
                 }
                 //modifying the chart dimension according to the user input
-                
-                
+
+
                 margin = 20;
                 var margin_chart = marginChart();
-                width_chart=width-margin_chart.left-margin_chart.right
-                height_chart=height-margin_chart.top-margin_chart.bottom
+                width_chart = width - margin_chart.left - margin_chart.right
+                height_chart = height - margin_chart.top - margin_chart.bottom
 
 
                 var x = d3.scale.linear()
@@ -521,29 +558,30 @@ HTMLWidgets.widget({
                     var color_input = {};
                 }
 
+                //Creating th esvg grid on which everithing will be drawn
+                svg_grid = d3.select(el)
+                    .append("svg")
+                    .attr("height", height)
+                    .attr("width", width)
 
-               svg_grid=d3.select(el)
-                  .append("svg")
-                  .attr("height",height)
-                  .attr("width",width)
 
 
-                //creating tooltip
 
-                
+
+
                 //Creating chart area
 
-                
-                
-                partitionChartArea=svg_grid
-                  .append("g")
-                  .attr("class","partitionChartArea")
-                  .attr("transform", "translate(" + margin_chart.left + ","+ margin_chart.top +")");  
-                  
-                
+
+
+                partitionChartArea = svg_grid
+                    .append("g")
+                    .attr("class", "partitionChartArea")
+                    .attr("transform", "translate(" + margin_chart.left + "," + margin_chart.top + ")");
+
+
                 if (input_x.type == 'circleTreeMap') {
 
-        
+
                     diameter = Math.min(height_chart, width_chart) - 10;
                     var layout_type = 'circular';
 
@@ -600,8 +638,8 @@ HTMLWidgets.widget({
                             .on("click", function(d) {
                                 if (focus !== d) zoom_circle(d), d3.event.stopPropagation();
                                 shinyReturnOutput(d, true)
-                                var accu_init=[];
-                                console.log(getParentPathAndValue(d,accu_init))
+                                var accu_init = [];
+                                console.log(getParentPathAndValue(d, accu_init))
                                 DrawTrail(d);
 
                             });
@@ -1622,14 +1660,14 @@ HTMLWidgets.widget({
                     }
                 }
 
-                
+
 
                 if (input_x.labelStyle)
                     d3.select(el).selectAll('.label').attr("style", input_x.labelStyle);
                 InitializeTrail(svg_grid);
                 DrawTrail(input_x.root)
-                addTitle(input_x.title,svg_grid);
-                drawLegend(color_input, layout_type_fun(input_x.type), input_x.legend.style ,svg_grid);
+                addTitle(input_x.title, svg_grid);
+                drawLegend(color_input, layout_type_fun(input_x.type), input_x.legend.style, svg_grid);
 
             },
 

@@ -31,6 +31,7 @@ library(htmlwidgets)
 #'                        When setted to sequential, the steps with a color provided are used as a reference. The further a steps from these reference, the darker.\cr 
 #'                  - color, Coerce the colors of some steps. Notice: only the colors provided in these are going to be shown in the legend.\cr 
 #'                  - style: A CSS string to change the legend style ex:"opacity:0;"
+#' @param trail A boolean to draw or not the sequence trail. Default to false.
 #' @param labelStyle A CSS string to change the labels style
 #' @param specificOptions Options speficic to some king of charts\cr 
 #'                  - collapsibleIndentedTree: list(bar=T), to true if you want to have bars proportional to the size of the step
@@ -47,6 +48,7 @@ library(htmlwidgets)
 #' D3partitionR(TRUE,type="sunburst",
 #' tooltipOptions = list(showAbsolutePercent=FALSE,showRelativePercent=FALSE),
 #' legend=list(type="categorical",color=list("step A"="#0BA","step B"="#AA1","step C"="#ECC")))
+#' 
 #' 
 #' 
 D3partitionR <- function(random=F,

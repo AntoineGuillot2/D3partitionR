@@ -9,7 +9,7 @@ D3partitionR(random = F, data = NULL, type = "circleTreeMap",
   width = NULL, height = NULL, elementId = NULL, Input = list(enabled =
   F, id = "unique_id", clickedStep = T, currentPath = T, visiblePaths = T,
   visibleLeaf = T, visibleNode = T), title = list(text = NULL, fontSize =
-  "auto"), legend = list(type = "categorical", color = NULL),
+  "auto", no_draw = TRUE), legend = list(no_show = TRUE), trail = FALSE,
   labelStyle = NULL, specificOptions = NULL)
 }
 \arguments{
@@ -51,6 +51,8 @@ D3partitionR(random = F, data = NULL, type = "circleTreeMap",
       When setted to sequential, the steps with a color provided are used as a reference. The further a steps from these reference, the darker.\cr 
 - color, Coerce the colors of some steps. Notice: only the colors provided in these are going to be shown in the legend.\cr 
 - style: A CSS string to change the legend style ex:"opacity:0;"}
+
+\item{trail}{A boolean to draw or not the sequence trail. Default to false.}
 
 \item{labelStyle}{A CSS string to change the labels style}
 
