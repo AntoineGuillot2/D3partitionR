@@ -207,12 +207,14 @@ HTMLWidgets.widget({
             }
             return (res)
         }
+        
 
 
 
         return {
 
             renderValue: function(input_x) {
+              
 
                 //Initialisatio of the output
                 var obj_out = {
@@ -222,6 +224,9 @@ HTMLWidgets.widget({
                     visibleLeaf: "none",
                     visibleNode: "none"
                 };
+                
+                $(el).parent()[0].style.height = height+"px"
+                $(el).parent()[0].style.width = width+"px"
                 //Initilalize the trail where the current sequence will be displayed
                 function InitializeTrail(svg_grid) {
 

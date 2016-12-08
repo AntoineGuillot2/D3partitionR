@@ -55,7 +55,7 @@ D3partitionR <- function(random=F,
                          data=NULL, 
                          type='circleTreeMap',
                          tooltipOptions=list(showAbsolutePercent=T,showRelativePercent=T),
-                         width = NULL, height = NULL, elementId = NULL,
+                         width = 700, height = 700, elementId = NULL,
                          Input=list(enabled=F,id="unique_id",clickedStep=T,currentPath=T,visiblePaths=T,visibleLeaf=T,visibleNode=T),
                          title=list(text=NULL,fontSize="auto",no_draw=TRUE),
                          legend=list(no_show=TRUE),
@@ -102,7 +102,10 @@ D3partitionR <- function(random=F,
     width = width,
     height = height,
     package = 'D3partitionR',
-    elementId = elementId
+    elementId = elementId,
+    sizingPolicy = htmlwidgets::sizingPolicy(
+      defaultWidth=width,defaultHeight = height
+    )
   )
 }
 
