@@ -6,6 +6,7 @@ HTMLWidgets.widget({
 
     factory: function(el, width, height) {
 
+
         // Generate a string that describes the points of a breadcrumb polygon.
         function breadcrumbPoints(d, i) {
             var points = [];
@@ -134,7 +135,6 @@ HTMLWidgets.widget({
 
         //going up in the tree to get the path to the root
         function getParentPath(obj, accu) {
-            console.log(accu)
             var accu_tp = accu.concat(obj.name);
             if (obj.parent) {
                 return (getParentPath(obj.parent, accu_tp))
@@ -226,18 +226,19 @@ HTMLWidgets.widget({
                 function InitializeTrail(svg_grid) {
 
                     if (input_x.trail) {
+                      margin_top = margin;
+                      if (input_x.title.no_draw == null) {
+
+                            margin_top = margin_top + 60
+                        }
                         
-                        margin_top = margin;
                         //Append a white rectangle to avoid problm when zooming 
                         svg_grid.append("g").append("rect")
                             .attr("width", "100%")
                             .attr("height", 82)
                             .style("fill", "white")
                             .attr("transform", "translate(" + 0 + "," + (margin_top - margin - 2) + ")")
-                        if (input_x.title.no_draw == null) {
 
-                            margin_top = margin_top + 60
-                        }
                         //remove previous trail
                         d3.select(el).selectAll(".D3partitionR .trail").remove();
                         el_id = el.getAttribute('id')
@@ -264,12 +265,6 @@ HTMLWidgets.widget({
                     if (!input_x.legend.no_show) {
                         margin_right = margin_right + 120
                     }
-                    console.log({
-                        top: margin_top_chart,
-                        right: margin_right,
-                        left: margin,
-                        bottom: margin
-                    })
                     return {
                         top: margin_top_chart,
                         right: margin_right,
@@ -404,7 +399,6 @@ HTMLWidgets.widget({
                 //function to add legend
                 function drawLegend(color_input, layout_type, legend_style, svg_grid) {
                     if (!input_x.legend.no_show) {
-                        console.log("ok")
                             // Dimensions of legend item: width, height, spacing, radius of rounded rect.
                         var li = {
                             w: 150,
@@ -513,8 +507,6 @@ HTMLWidgets.widget({
                 }
 
                 var max_value = input_x.root.cumulative_value;
-
-                console.log("new version")
 
                 //setting up chart dimmension according to user input
 
@@ -639,7 +631,6 @@ HTMLWidgets.widget({
                                 if (focus !== d) zoom_circle(d), d3.event.stopPropagation();
                                 shinyReturnOutput(d, true)
                                 var accu_init = [];
-                                console.log(getParentPathAndValue(d, accu_init))
                                 DrawTrail(d);
 
                             });

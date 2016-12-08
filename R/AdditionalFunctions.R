@@ -3,7 +3,6 @@
 ConvertPathToHierarchy<-function(list_path,list_value,root_in=FALSE)
 {
   res=list()
-  print(root_in)
 
 
   unique_elt<-unique(unlist(lapply(1:length(list_path),function(x){list_path[[x]][1]})))
@@ -52,4 +51,13 @@ generateRandomPath<-function(step=6,n_path=1000)
   RandomData<-ConvertPathToHierarchy(list_path,list_value,root_in=T)
   return(RandomData[[1]])
 }
+
+
+require(graphics)
+
+
+
+
+
+
 
