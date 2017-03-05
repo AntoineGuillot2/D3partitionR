@@ -225,8 +225,10 @@ HTMLWidgets.widget({
                     visibleNode: "none"
                 };
                 
-                $(el).parent()[0].style.height = height+"px"
+                $(el).parent()[0].style.height = height
                 $(el).parent()[0].style.width = width+"px"
+                console.log($(el).parent()[0].style.width)
+                console.log($(el).parent()[0])
                 //Initilalize the trail where the current sequence will be displayed
                 function InitializeTrail(svg_grid) {
 
@@ -239,7 +241,7 @@ HTMLWidgets.widget({
                         
                         //Append a white rectangle to avoid problm when zooming 
                         svg_grid.append("g").append("rect")
-                            .attr("width", "100%")
+                            .attr("width", "102%")
                             .attr("height", 82)
                             .style("fill", "white")
                             .attr("transform", "translate(" + 0 + "," + (margin_top - margin - 2) + ")")
@@ -466,7 +468,7 @@ HTMLWidgets.widget({
                 function addTitle(title, svg_grid) {
                     if (title.text) {
                         svg_grid.append("rect")
-                            .attr("width", "100%")
+                            .attr("width", "102%")
                             .attr("height", 60)
                             .style("fill", "white")
                         var title_svg = svg_grid.append("g").append("text")
@@ -585,10 +587,11 @@ HTMLWidgets.widget({
 
 
                     var pack = d3.layout.pack()
-                        .padding(2)
+                        .padding(0)
                         .size([diameter - margin, diameter - margin])
                         .value(function(d) {
-                            return d.value;
+                          console.log(d.name);
+                            return d.cumulative_value;
                         })
 
                     var svg_circle = partitionChartArea
@@ -605,6 +608,8 @@ HTMLWidgets.widget({
                         var focus = root,
                             nodes = pack.nodes(root),
                             view;
+                            
+
 
 
                         var circle = svg_circle.selectAll("circle")

@@ -49,6 +49,7 @@ generateRandomPath<-function(step=6,n_path=1000)
   list_path=unique(replicate(n_path,c('A',sample(SAMPLE,sample(sample(2:step,1),1)))))
   list_value=round(abs(rnorm(n_path,50,200)))[1:length(list_path)]
   RandomData<-ConvertPathToHierarchy(list_path,list_value,root_in=T)
+  Test_sv<<-RandomData[[1]]
   return(RandomData[[1]])
 }
 

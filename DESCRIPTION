@@ -1,6 +1,6 @@
 Package: D3partitionR
 Title: Plotting D3 Hierarchical Plots in R and Shiny
-Version: 0.3.0
+Version: 0.3.1
 Authors@R: c(person("Antoine", "GUILLOT", email = "antoine.guil@outlook.fr", role ="cre"),
       person(
         "Mike", "Bostock"
@@ -15,12 +15,25 @@ Authors@R: c(person("Antoine", "GUILLOT", email = "antoine.guil@outlook.fr", rol
     )
 Description: Plotting hierarchical plots in R such as Sunburst, Treemap, Circle
     Treemap, Partition Chart, collapsible indented tree and collapsible tree.
-Depends:
-    R (>= 3.3.1)
+Depends: R (>= 3.3.1)
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 5.0.1
-Imports:
-    htmlwidgets,
-    stats
+Imports: htmlwidgets, stats
+NeedsCompilation: no
+Packaged: 2016-12-16 18:19:19 UTC; Antoi
+Author: Antoine GUILLOT [cre],
+  Mike Bostock [aut, cph] (d3.js library in htmlwidgets/lib,
+    http://d3js.org. The partitionChart, sunburst, the treemap, the
+    zoomable circlePacking, the collapsible indented tree and the
+    collapsible tree are all derived from his works.),
+  jQuery Foundation [cph] (jQuery library),
+  jQuery contributors [ctb, cph] (jQuery library; authors listed in
+    inst/htmlwidgets/lib/jquery/jquery-AUTHORS.txt),
+  HubSpot [cph] (Tether creators and contributors),
+  Twitter Inc [cph] (Boostrap creators),
+  Bootstrap contributor [cph] (Bootstrap contributors)
+Maintainer: Antoine GUILLOT <antoine.guil@outlook.fr>
+Repository: CRAN
+Date/Publication: 2016-12-16 19:50:02

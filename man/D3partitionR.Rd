@@ -6,8 +6,8 @@
 \usage{
 D3partitionR(random = F, data = NULL, type = "circleTreeMap",
   tooltipOptions = list(showAbsolutePercent = T, showRelativePercent = T),
-  width = NULL, height = NULL, elementId = NULL, Input = list(enabled =
-  F, id = "unique_id", clickedStep = T, currentPath = T, visiblePaths = T,
+  width = 700, height = 700, elementId = NULL, Input = list(enabled = F,
+  id = "unique_id", clickedStep = T, currentPath = T, visiblePaths = T,
   visibleLeaf = T, visibleNode = T), title = list(text = NULL, fontSize =
   "auto", no_draw = TRUE), legend = list(no_show = TRUE), trail = FALSE,
   labelStyle = NULL, specificOptions = NULL)
@@ -71,6 +71,7 @@ D3partitionR(TRUE)
 D3partitionR(TRUE,type="sunburst",
 tooltipOptions = list(showAbsolutePercent=FALSE,showRelativePercent=FALSE),
 legend=list(type="categorical",color=list("step A"="#0BA","step B"="#AA1","step C"="#ECC")))
+
 
 
 }
