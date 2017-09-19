@@ -2,14 +2,14 @@
 
 D3 partition R is an R package to build interactive visualition of nested data. Through easy to-use R functions (in a ggplot-like syntax) you will be able to plot and customise sunburst, treemap, circle treemap, icicle and partition chart. All the visualisations are interactive, zoomable and based on the latest version of d3.js (V4).
 
-![Examples](img/ExampleD3partitionR.gif?raw=true)
+![Examples](inst/img/ExampleD3partitionR.gif?raw=true)
 
 ## Installation
 The package is currently in beta and will soon be released on the CRAN. You can test it by installing the package from github.
 
 ```rmethods to add data
 library(devtools)
-install_github("AntoineGuillot2/D3_partitionR_beta")
+install_github("AntoineGuillot2/D3partitionR")
 ```
 
 ## Global structure of the package
@@ -87,7 +87,7 @@ d3%>%
 ``` 
 
 With this code, the nodes Embarked S, Embarked C, Embarked Q will have additional data apended (the url of the wikipedia page of the location).
-![Examples](img/additionalNodesInformation.png?raw=true)
+![Examples](inst/img/additionalNodesInformation.png?raw=true)
 
 
 ## Specification of additional variables and nodes data
@@ -130,7 +130,7 @@ D3partitionR()%>%
   set_labels_parameters(cut_off=10)%>%
   plot()
 ```
-![Examples](img/exampleAggregationFunction.png?raw=true)
+![Examples](inst/img/exampleAggregationFunction.png?raw=true)
 
 
 
@@ -189,7 +189,13 @@ D3partitionR()%>%
     plot()
 ```
 
+## D3.js code modularity
 
+The d3.js code was thought to be modular, hence it is easy to add new chart types. Each chart type has its own .js file with its drawing function. In this file:
+*The chart is plotted, the labels and the colors are added
+*The function return a click behavior which is called when a node is clicked. This file is called in the general function in charge of drawing the chart, the legend, the title and the breacrumb.
+
+Hence, any hierarchical-like d3.js visualisation can easily be generalised and added to the package
 
 
 
