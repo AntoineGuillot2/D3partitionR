@@ -4,9 +4,9 @@
 \alias{D3partitionR-shiny}
 \alias{D3partitionROutput}
 \alias{renderD3partitionR}
-\title{Shiny bindings for CircleTreeMapR}
+\title{Shiny bindings for D3partitionR}
 \usage{
-D3partitionROutput(outputId, width = "100\%", height = "700px")
+D3partitionROutput(outputId, width = "100\%", height = "400px")
 
 renderD3partitionR(expr, env = parent.frame(), quoted = FALSE)
 }
@@ -28,4 +28,3 @@ is useful if you want to save an expression in a variable.}
 Output and render functions for using D3partitionR within Shiny
 applications and interactive Rmd documents.
 }
-

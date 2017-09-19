@@ -1,39 +1,40 @@
 Package: D3partitionR
-Title: Plotting D3 Hierarchical Plots in R and Shiny
-Version: 0.3.1
-Authors@R: c(person("Antoine", "GUILLOT", email = "antoine.guil@outlook.fr", role ="cre"),
+Title: Interactive charts of nested and hierarchical data with R and d3.js
+Version: 0.5.0
+Authors@R: c(person("Antoine", "Guillot", email = "antoine.guil@outlook.fr", role = c("aut", "cre")),
       person(
         "Mike", "Bostock"
         , role = c("aut", "cph")
-        , comment = "d3.js library in htmlwidgets/lib, http://d3js.org. The partitionChart, sunburst, the treemap, the zoomable circlePacking, the collapsible indented tree and the collapsible tree are all derived from his works."
-      ),person(family = "jQuery Foundation", role = "cph", comment = "jQuery library"),
-    person(family = "jQuery contributors", role = c("ctb", "cph"),
-      comment = "jQuery library; authors listed in inst/htmlwidgets/lib/jquery/jquery-AUTHORS.txt"
-    ),person(family = "HubSpot", role = "cph", comment = "Tether creators and contributors"),
-    person(family = "Twitter Inc", role = "cph", comment = "Boostrap creators"),
-    person(family = "Bootstrap contributor", role = "cph", comment = "Bootstrap contributors")
-    )
-Description: Plotting hierarchical plots in R such as Sunburst, Treemap, Circle
-    Treemap, Partition Chart, collapsible indented tree and collapsible tree.
+        , comment = "d3.js library, http://d3js.org, nested treemap, icicle, zoomable circle treemap and sunb"
+      ),
+      person(
+      "Susie","Lu",
+      role = c("aut", "cph"),
+      comment = "d3-legend, http://d3-legend.susielu.com/"
+      ),
+      person(
+        "Kerry", "Rodden"
+        , role = c("aut", "cph")
+        , comment = "Breadcrumb Code for fixed sized breadcrumb."
+      ), person(
+        "Nadieh", "Bremer"
+        , role = c("aut", "cph")
+        , comment = "Placement of labels on arcs, https://www.visualcinnamon.com/2015/09/placing-text-on-arcs.html"
+      ),
+      person(
+        "Hub", "Spot"
+        , role = c("aut", "cph")
+        , comment = "tether.js"
+      ))
+Description: D3partitionR is designed to help to build interactive D3.js hierarchical visualisation with R. It makes it easy to build and customize sunburst, circle treemap, treemap, partition chart, ...
 Depends: R (>= 3.3.1)
-License: MIT + file LICENSE
+Imports:
+    data.table,
+    magrittr,
+    htmlwidgets,
+    functional,
+    RColorBrewer
+License: AGPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 5.0.1
-Imports: htmlwidgets, stats
-NeedsCompilation: no
-Packaged: 2016-12-16 18:19:19 UTC; Antoi
-Author: Antoine GUILLOT [cre],
-  Mike Bostock [aut, cph] (d3.js library in htmlwidgets/lib,
-    http://d3js.org. The partitionChart, sunburst, the treemap, the
-    zoomable circlePacking, the collapsible indented tree and the
-    collapsible tree are all derived from his works.),
-  jQuery Foundation [cph] (jQuery library),
-  jQuery contributors [ctb, cph] (jQuery library; authors listed in
-    inst/htmlwidgets/lib/jquery/jquery-AUTHORS.txt),
-  HubSpot [cph] (Tether creators and contributors),
-  Twitter Inc [cph] (Boostrap creators),
-  Bootstrap contributor [cph] (Bootstrap contributors)
-Maintainer: Antoine GUILLOT <antoine.guil@outlook.fr>
-Repository: CRAN
-Date/Publication: 2016-12-16 19:50:02
+RoxygenNote: 6.0.1

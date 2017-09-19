@@ -1,25 +1,50 @@
 dependencies:
-  - name: tether
-    version: 1.1.3
-    src: "htmlwidgets/lib/tether"
-    script: tether.min.js
-  - name: jquery
-    version: 1.11.3
-    src: "htmlwidgets/lib/jquery"
-    script: jquery.min.js
-  - name: bootstrap
-    version: 4.0.0
-    src: "htmlwidgets/lib/bootstrap"
-    script: bootstrap.js
-  - name: bootstrap_css
-    version: 3.3.7
-    src: "htmlwidgets/lib/bootstrap"
-    stylesheet: bootstrap.css
-  - name: d3
-    version: 3.5.5
-    src: htmlwidgets/lib/d3
-    script: d3.min.js
-  - name: circle
-    version: 0.2.1
-    src: htmlwidgets/lib/style
-    stylesheet: circle.css
+- name: 'tether.js'
+  version: 1.3.3
+  src: "htmlwidgets/lib/tether"
+  script: "tether.min.js"
+- name: 'd3.js'
+  version: 4.10.0
+  src: "htmlwidgets/lib/d3"
+  script: "d3.min.js"
+- name: 'style'
+  version: 0.2.1
+  src: 'htmlwidgets/style'
+  stylesheet: 'style.css'
+- name: 'd3.legend'
+  version: 4.10.0
+  src: "htmlwidgets/lib/d3-legend"
+  script: "d3-legend.js"
+- name: 'helper.functions'
+  version: 0.5.0
+  src: "htmlwidgets/js"
+  script: "helper.functions.js"
+- name: 'sunburst'
+  version: 0.5.0
+  src: "htmlwidgets/js"
+  script: "sunburst.js"
+- name: 'icicle'
+  version: 0.5.0
+  src: "htmlwidgets/js"
+  script: "icicle.js"
+- name: 'partition_chart'
+  version: 0.5.0
+  src: "htmlwidgets/js"
+  script: "partition_chart.js"
+- name: 'circle_treemap'
+  version: 0.5.0
+  src: "htmlwidgets/js"
+  script: "circle_treemap.js"
+- name: 'treemap'
+  version: 0.5.0
+  src: "htmlwidgets/js"
+  script: "treemap.js"
+- name: 'shiny_binding'
+  version: 0.5.0
+  src: "htmlwidgets/js"
+  script: "shiny_input_binding.js"
+
+
+
+
+
