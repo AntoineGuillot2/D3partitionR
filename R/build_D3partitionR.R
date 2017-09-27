@@ -24,6 +24,7 @@ D3partitionR<-function()
 #' @export
 add_data<-function(D3partitionR_object,data,steps,count='value',color='name',label='name',tooltip='name',aggregate_fun=NULL)
 {
+  data=data%>%as.data.frame()%>%as.data.table()
   if (!is.data.frame(data))
   {
     stop('The data need to be a data.frame')
