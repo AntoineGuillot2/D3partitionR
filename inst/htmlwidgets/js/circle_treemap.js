@@ -58,7 +58,7 @@ function draw_circle_treemap(root, chart, chart_height, chart_width, param_label
 				return "#circleArc_" + i;
 			})
 			.style("text-anchor", "middle") //place the text halfway on the arc
-			.attr("startOffset", "50%")
+			.attr("startOffset", "25%")
 			.text(function(d) {
 				return d.data[param_labels.variable];
 			});

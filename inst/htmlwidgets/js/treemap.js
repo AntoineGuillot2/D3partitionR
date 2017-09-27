@@ -56,7 +56,6 @@ function draw_treemap(root, chart, chart_height, chart_width, param_labels, colo
 				return d.data.value < root.data.value * param_labels.cut_off
 			})
 			.attr('visibility', 'hidden')
-			.attr("text-anchor", "middle")
 	}
 
 	var focus = root,
@@ -112,7 +111,7 @@ function draw_treemap(root, chart, chart_height, chart_width, param_labels, colo
 
 		if (param_labels.show === true) {
 			labels.attr('x', function(d) {
-					return (((d.x0 + d.x1) / 2 - v[0]) * k)
+					return (((d.x0*0.8 + d.x1*0.2) - v[0]) * k)
 				})
 				.attr('y', function(d) {
 					return ((d.y0 + 10 - v[1]) * k)
