@@ -67,7 +67,7 @@ function draw_icicle(root, chart, chart_height, chart_width, param_labels, color
 		x.domain([d.x0, d.x1]);
 		y.domain([d.y0, chart_height]).range([d.depth ? 20 : 0, chart_height]);
 
-		rect.transition()
+		chart.selectAll('rect').transition()
 			.duration(750)
 			.attr("x", function(d) {
 				return x(d.x0);
@@ -82,9 +82,10 @@ function draw_icicle(root, chart, chart_height, chart_width, param_labels, color
 				return y(d.y1) - y(d.y0);
 			});
 
+    var label_zoom=chart.selectAll('text');
 		if (param_labels.show === true) {
 
-			labels.transition()
+			label_zoom.transition()
 				.duration(750)
 				.attr('x', function(d) {
 					return x((d.x0 + d.x1) / 2)
@@ -93,12 +94,12 @@ function draw_icicle(root, chart, chart_height, chart_width, param_labels, color
 					return y((d.y0 + d.y1) / 2)
 				})
 
-			labels.filter(function(d) {
+			label_zoom.filter(function(d) {
 					return d.data.value > clicked_node_size * param_labels.cut_off;
 				})
 				.attr('visibility', 'visible')
 
-			labels.filter(function(d) {
+			label_zoom.filter(function(d) {
 					return d.data.value < clicked_node_size * param_labels.cut_off
 				})
 				.attr('visibility', 'hidden')

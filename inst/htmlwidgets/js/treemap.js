@@ -99,7 +99,8 @@ function draw_treemap(root, chart, chart_height, chart_width, param_labels, colo
 		///k=zoom coeff
 		var k = (chart_width / v[2]);
 		view = v;
-		rect.attr("transform", function(d) {
+		var rect_zoom=chart.selectAll('rect');
+		rect_zoom.attr("transform", function(d) {
 				return "translate(" + (d.x0 - v[0]) * k + "," + (d.y0 - v[1]) * k + ")";
 			})
 			.attr("width", function(d) {
@@ -109,15 +110,16 @@ function draw_treemap(root, chart, chart_height, chart_width, param_labels, colo
 				return (d.y1 - d.y0) * k;
 			});
 
+    var label_zoom=chart.selectAll('text');
 		if (param_labels.show === true) {
-			labels.attr('x', function(d) {
+			label_zoom.attr('x', function(d) {
 					return (((d.x0*0.8 + d.x1*0.2) - v[0]) * k)
 				})
 				.attr('y', function(d) {
 					return ((d.y0 + 10 - v[1]) * k)
 				})
 
-			labels.filter(function(d) {
+			label_zoom.filter(function(d) {
 					return d.children === undefined
 				})
 				.attr('y', function(d) {

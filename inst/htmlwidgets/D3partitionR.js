@@ -15,7 +15,7 @@ HTMLWidgets.widget({
 				//Removing any old chart
 				d3.select(el).select(".d3partitionR_chart").remove();
 				d3.selectAll('.d3_partitionR_tooltip').remove();
-
+				el_id = el.getAttribute('id');
 
 				//color palette of the chart
 				color_pal = set_color_scale(D3partitionR.color_scale)
@@ -144,7 +144,7 @@ HTMLWidgets.widget({
 				}
 				if (D3partitionR.trail.visible) {
 
-					el_id = el.getAttribute('id');
+					
 
 					trail = svg_grid.append("g")
 						.attr("transform", "translate(" + 0 + "," + (y_chart - breadcrumb_height) + ")")
@@ -165,7 +165,8 @@ HTMLWidgets.widget({
 				d3.select(el).selectAll('.d3_partitionR_tooltip').remove()
 
 				var tooltip=d3.select(el).append('div')
-				             .attr('class','hidden d3_partitionR_tooltip');
+				             .attr('class','hidden d3_partitionR_tooltip')
+				             .attr('id','tooltip_'+el_id);
 
 
 
@@ -212,16 +213,16 @@ HTMLWidgets.widget({
 
 					})
 					.on('mousemove', function (d) {
-					  d3.select(this).classed('hovered_node', true)
+					  d3.select(this).classed('hovered_node_'+el_id, true)
 					  .style("stroke", 'white')
 					  .style("stroke-width", 2);
-					  tooltip.classed('hidden', false)
+					  d3.select( '#tooltip_'+el_id).classed('hidden', false)
 					        .html(eval(D3partitionR.tooltip.builder))
 					        .attr('style',D3partitionR.tooltip.style);
 
 					  tether= new Tether({
-                element: '.d3_partitionR_tooltip',
-                target: '.hovered_node',
+                element: '#tooltip_'+el_id,
+                target: '.hovered_node_'+el_id,
                 attachment: 'middle center',
                 targetAttachment: 'top center',
             });
@@ -230,10 +231,9 @@ HTMLWidgets.widget({
 
 					  )
         .on('mouseout', function () {
-          d3.select(this).classed('hovered_node', false).style("stroke", 'black');
+          d3.select(this).classed('hovered_node_'+el_id, false).style("stroke", 'black');
           setTimeout(function(){
-    tooltip.classed('hidden', true);
-    tether.destroy()
+    d3.select( '#tooltip_'+el_id).classed('hidden', true);
 }, 1000);
 
 

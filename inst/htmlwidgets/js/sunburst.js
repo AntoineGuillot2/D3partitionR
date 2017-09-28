@@ -1,5 +1,5 @@
 function draw_sunburst(root, chart, chart_height, chart_width, param_labels, color) {
-
+  var arc_identifier=Math.floor((Math.random() * 10000) + 1);
 	var partition = d3.partition();
 
 	var radius = (Math.min(chart_width, chart_height) / 2) - 10;
@@ -26,19 +26,21 @@ function draw_sunburst(root, chart, chart_height, chart_width, param_labels, col
 
 	nodes = partition(root).descendants();
 
-	sunburst_chart=chart.append('g').attr("transform", "translate(" + ((chart_width) / 2) + "," + ((chart_height) / 2) + ")")
+	sunburst_chart=chart.append('g')
+	.attr("transform", "translate(" + ((chart_width) / 2) + "," + ((chart_height) / 2) + ")")
 
 	arc_path = sunburst_chart
 		.selectAll(".arcPath")
 		.data(nodes)
 		.enter().append("path")
+		.attr('class','path_'+arc_identifier)
 		.attr("d", arc);
 
 	arc_path.style("fill", function(d) {
 			return color(d);
 		})
 		.attr("id", function(d, i) {
-			return "arcPath_" + i;
+			return "arcPath_"+arc_identifier+' ' + i;
 		})
 		.attr('class', 'd3_partition_node')
 
@@ -50,7 +52,7 @@ function draw_sunburst(root, chart, chart_height, chart_width, param_labels, col
 			.attr("dy", 18)
 			.append("textPath")
 			.attr("xlink:href", function(d, i) {
-				return "#arcPath_" + i;
+				return "#arcPath_"+arc_identifier+' ' + i;
 			})
 			.text(function(d) {
 				return d.data[param_labels.variable];
@@ -71,7 +73,7 @@ function draw_sunburst(root, chart, chart_height, chart_width, param_labels, col
 	function click_sunburst(d) {
 		current_root = d;
 
-		sunburst_chart.transition()
+		chart.transition()
 			.duration(750)
 			.tween("scale", function() {
 				var xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
@@ -82,7 +84,7 @@ function draw_sunburst(root, chart, chart_height, chart_width, param_labels, col
 					y.domain(yd(t)).range(yr(t));
 				};
 			})
-			.selectAll("path")
+			.selectAll('path')
 			.attrTween("d", function(d) {
 				return function() {
 					return arc(d);

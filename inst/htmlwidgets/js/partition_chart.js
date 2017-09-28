@@ -71,7 +71,7 @@ if (param_labels.show===true)
   	y.domain([d.x0, d.x1]);
   	x.domain([d.y0, chart_width]).range([d.depth ? 20 : 0, chart_width]);
 
-  	rect.transition()
+  	chart.selectAll('rect').transition()
   		.duration(750)
   		.attr("x", function(d) {
   			return x(d.y0);
@@ -85,10 +85,11 @@ if (param_labels.show===true)
   		.attr("height", function(d) {
   			return y(d.x1) - y(d.x0);
   		});
-
+    
+    var label_zoom=chart.selectAll('text');
   	if (param_labels.show===true)
   	{
-  	  labels.transition()
+  	  label_zoom.transition()
   		.duration(750)
   		.attr('x', function(d) {
   			return x(d.y0)
@@ -97,12 +98,12 @@ if (param_labels.show===true)
   			return y((d.x0 + d.x1) / 2)
   		})
 
-  	labels.filter(function(d) {
+  	label_zoom.filter(function(d) {
   			return d.data.value > clicked_node_size * param_labels.cut_off;
   		})
   		.attr('visibility', 'visible')
 
-  	labels.filter(function(d) {
+  	label_zoom.filter(function(d) {
   			return d.data.value < clicked_node_size * param_labels.cut_off
   		})
   		.attr('visibility', 'hidden')

@@ -132,7 +132,7 @@ set_trail<-function(D3partitionR_object,visible=T)
   {
     stop('visible should be a boolean')
   }
-  D3partitionR_object$trail<-list(visible=T)
+  D3partitionR_object$trail<-list(visible=visible)
   return(D3partitionR_object)
 }
 
