@@ -35,7 +35,6 @@ tooltip_builder=function(type)
 	function() {
 		var tooltip_html = "<table>"
 		for (var variable in D3partitionR.variable.tooltip) {
-      console.log(D3partitionR.variable.tooltip)
 			if (d.data[D3partitionR.variable.tooltip[variable]] !== undefined)
 				{
 					var f = d3.format(".2f");

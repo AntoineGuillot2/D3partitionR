@@ -245,7 +245,13 @@ set_chart_type<-function(D3partitionR_object,chart_type)
 #' @export
 set_shiny_input=function(D3partitionR_object,input_id,enabled_inputs=list(clicked_node=T,leaves=T,nodes=T,ancestors=T,children_path=F))
 {
+  base_enabled_inputs=list(clicked_node=F,leaves=F,nodes=F,ancestors=F,children_path=F)
+  for (input_type in names(enabled_inputs))
+  {
+    base_enabled_inputs[[input_type]]=enabled_inputs[[input_type]]
+  }
   D3partitionR_object$shiny_input=list(enabled_inputs=enabled_inputs,input_id=input_id)
+  return(D3partitionR_object)
 }
 
 #' Compile D3partitionR object to plot it
@@ -442,6 +448,7 @@ compile_D3_partitionR<-function(D3partitionR_object)
 
   ##Add chart type
   compiled_D3$title=d3$title
+  compiled_D3$shiny_input=d3$shiny_input
 
   compiled_D3$compiled=T
   return(compiled_D3)

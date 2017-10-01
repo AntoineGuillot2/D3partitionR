@@ -4,7 +4,9 @@ function getAllLeaves(root) {
 
       if (root.children===undefined)
       {
-        return([root.data])
+        var root_tp=root.data
+        root_tp.color=root.color
+        return([root_tp])
       }
       else
       {
@@ -12,7 +14,7 @@ function getAllLeaves(root) {
         for (var child in root.children)
         {
           var leaves=getAllLeaves(root.children[child])
-          for (leaf in leaves)
+          for (var leaf in leaves)
           {
             res.push(leaves[leaf])
           }

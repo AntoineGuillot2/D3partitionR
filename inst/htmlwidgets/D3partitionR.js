@@ -60,7 +60,7 @@ HTMLWidgets.widget({
 
 
 				D3partitionR.data=add_value_variable(D3partitionR.variable.value,D3partitionR.data);
-        console.log(D3partitionR.data)
+
 
 				var root = d3.hierarchy(D3partitionR.data);
 				var partition = d3.partition();
@@ -173,6 +173,33 @@ HTMLWidgets.widget({
 
 
         var tether;
+        if (D3partitionR.shiny_input!==undefined)
+						{
+						  console.log(root);
+						  if (D3partitionR.shiny_input.enabled_inputs.clicked_node)
+						  {
+						    obj_out.clicked_node=root.data;
+						    obj_out.clicked_node.children=null;
+						  }
+						  if (D3partitionR.shiny_input.enabled_inputs.leaves)
+						  {
+						    obj_out.leaves=getAllLeaves(root);
+						  }
+						  if (D3partitionR.shiny_input.enabled_inputs.nodes)
+						  {
+						    obj_out.nodes=getAllNodes(root);
+						  }
+						  if (D3partitionR.shiny_input.enabled_inputs.ancestors)
+						  {
+						    obj_out.enabled_inputs.ancestors=getAncestors(root);
+						  }
+						  if (D3partitionR.shiny_input.enabled_inputs.children_path)
+						  {
+						    obj_out.children_path=getAncestors(root);
+						  }
+						  Shiny.onInputChange(D3partitionR.shiny_input.input_id, obj_out);
+						}
+        
 
 				chart.selectAll(".d3_partition_node")
 				  	.style("stroke", 'black')
@@ -184,19 +211,21 @@ HTMLWidgets.widget({
 							addTrail(d);
 						if (D3partitionR.legend.visible & D3partitionR.legend.zoom_subset)
 							addLegend(d);
-						if (D3partitionR.legend.shiny_input!==undefined)
+						if (D3partitionR.shiny_input!==undefined)
 						{
+						  console.log(d);
 						  if (D3partitionR.shiny_input.enabled_inputs.clicked_node)
 						  {
 						    obj_out.clicked_node=d.data;
+						    obj_out.clicked_node.children=null;
 						  }
 						  if (D3partitionR.shiny_input.enabled_inputs.leaves)
 						  {
-						    obj_out.enabled_inputs.leaves=getAllLeaves(d);
+						    obj_out.leaves=getAllLeaves(d);
 						  }
 						  if (D3partitionR.shiny_input.enabled_inputs.nodes)
 						  {
-						    obj_out.enabled_inputs.nodes=getAllNodes(d);
+						    obj_out.nodes=getAllNodes(d);
 						  }
 						  if (D3partitionR.shiny_input.enabled_inputs.ancestors)
 						  {
@@ -204,8 +233,9 @@ HTMLWidgets.widget({
 						  }
 						  if (D3partitionR.shiny_input.enabled_inputs.children_path)
 						  {
-						    obj_out.enabled_inputs.children_path=getAncestors(d);
+						    obj_out.children_path=getAncestors(d);
 						  }
+						  console.log(obj_out)
 						  Shiny.onInputChange(D3partitionR.shiny_input.input_id, obj_out);
 
 
