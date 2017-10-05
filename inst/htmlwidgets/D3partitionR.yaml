@@ -43,6 +43,10 @@ dependencies:
   version: 0.5.0
   src: "htmlwidgets/js"
   script: "shiny_input_binding.js"
+- name: 'plot_D3partitionR'
+  version: 0.5.0
+  src: "htmlwidgets/js"
+  script: "plot_d3partitionR.js"  
 
 
 

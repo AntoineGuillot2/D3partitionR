@@ -7,14 +7,19 @@
 #' @param elementId html id of the widget
 #' @param ... Other graphical parameters
 #' @export
-plot.D3partitionR <- function(x, width = NULL, height = NULL, elementId = NULL, ...) {
+plot.D3partitionR <- function(x, width = NULL, height = NULL, elementId = NULL, sizingPolicy = NULL) {
 
 
 
 
     x =  compile_D3_partitionR(x)
+    
+    if(is.null(sizingPolicy)){
+      sizingPolicy <- htmlwidgets::sizingPolicy(browser.fill=TRUE)
+    }
+    
     # create widget
-    htmlwidgets::createWidget(name = "D3partitionR", x, width = width, height = height, package = "D3partitionR", elementId = elementId)
+    htmlwidgets::createWidget(name = "D3partitionR", x, width = width, height = height, package = "D3partitionR", elementId = elementId,sizingPolicy = sizingPolicy)
 }
 
 #' Shiny bindings for D3partitionR
