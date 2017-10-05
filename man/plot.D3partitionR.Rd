@@ -5,7 +5,7 @@
 \title{Plot D3partitionR object}
 \usage{
 \method{plot}{D3partitionR}(x, width = NULL, height = NULL,
-  elementId = NULL, ...)
+  elementId = NULL, sizingPolicy = NULL, ...)
 }
 \arguments{
 \item{x}{A D3partitionR object to plot}
@@ -16,7 +16,9 @@
 
 \item{elementId}{html id of the widget}
 
-\item{...}{Other graphical parameters}
+\item{sizingPolicy}{sizing policy}
+
+\item{...}{parameters for method consistency}
 }
 \description{
 Plot D3partitionR object

@@ -5,12 +5,10 @@
 #' @param width width of the widget in pixel/percent
 #' @param height height of the widget in pixel/percent
 #' @param elementId html id of the widget
-#' @param ... Other graphical parameters
+#' @param sizingPolicy sizing policy
+#' @param ... parameters for method consistency
 #' @export
-plot.D3partitionR <- function(x, width = NULL, height = NULL, elementId = NULL, sizingPolicy = NULL) {
-
-
-
+plot.D3partitionR <- function(x, width = NULL, height = NULL, elementId = NULL, sizingPolicy = NULL, ...) {
 
     x =  compile_D3_partitionR(x)
     
