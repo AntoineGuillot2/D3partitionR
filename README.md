@@ -1,15 +1,14 @@
-# D3 partition R (Beta version)
+# D3 partition R 0.5.0
 
 D3 partition R is an R package to build interactive visualisation of nested data. Through easy to-use R functions (in a ggplot-like syntax) you will be able to plot and customise sunburst, treemap, circle treemap, icicle and partition chart. All the visualisations are interactive, zoom-able and based on the latest version of d3.js (V4).
 
 ![Examples](inst/img/ExampleD3partitionR.gif?raw=true)
 
 ## Installation
-The package is currently in beta and will soon be released on the CRAN. You can test it by installing the package from GitHub.
+The package is now available on the CRAN.
 
 ```rmethods to add data
-library(devtools)
-install_github("AntoineGuillot2/D3partitionR")
+install.packages("D3partitionR")
 ```
 
 ## Global structure of the package
