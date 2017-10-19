@@ -313,7 +313,7 @@ compile_D3_partitionR<-function(D3partitionR_object)
   ##If no color variable have been provided, default to name
 
   ##if no color scale have been supplied
-  if (is.null(d3$color_scale))
+  if (is.null(d3$color))
   {
     if (is.null(d3$data$color))
     {
@@ -351,6 +351,7 @@ compile_D3_partitionR<-function(D3partitionR_object)
     }
     else
     {
+      palette=d3$color$color_palette
       if (d3$color$type=='discrete')
       {
 
@@ -361,10 +362,10 @@ compile_D3_partitionR<-function(D3partitionR_object)
           if (length(palette)<length(nodes_names))
           {
             warning('Not enough colors, defaut colors are automatically added')
-            n_missing_color=length(nodes_names)-length(palette)
+            n_missing_color=length(nodes_names)-length(palette)+1
             qual_palette=as.data.table(RColorBrewer::brewer.pal.info,keep.rownames = T)[category=='qual']
             new_colors=sapply(qual_palette$rn,function(x){brewer.pal(qual_palette[rn==x,maxcolors],x)})%>%unlist()%>%unique()
-            palette=unique(c(palette,new_colors))[1:length(nodes_names)]
+            palette=c(palette,new_colors)[1:length(nodes_names)]
             names(palette)<-nodes_names
             d3$color$color_palette=palette
           }
@@ -374,12 +375,12 @@ compile_D3_partitionR<-function(D3partitionR_object)
           if (length(palette)<length(nodes_names))
           {
             warning('Not enough named colors, defaut colors are automatically added for missing nodes')
-            n_missing_color=length(nodes_names)-length(palette)
+            n_missing_color=length(nodes_names)-length(palette)+1
             missing_names=nodes_names[which(!nodes_names%in%names(palette))]
             qual_palette=as.data.table(RColorBrewer::brewer.pal.info,keep.rownames = T)[category=='qual']
             new_colors=sapply(qual_palette$rn,function(x){brewer.pal(qual_palette[rn==x,maxcolors],x)})%>%unlist()%>%unique()
             names_palette=c(names(palette),missing_names)
-            palette=unique(c(palette,new_colors))[1:length(nodes_names)]
+            palette=c(palette,new_colors)[1:length(nodes_names)]
             names(palette)<-names_palette
             d3$color$color_palette=palette
           }

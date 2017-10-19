@@ -1,5 +1,5 @@
 Package: D3partitionR
-Title: Interactive charts of nested and hierarchical data with R and d3.js
+Title: Interactive Charts of Nested and Hierarchical Data with 'D3.js'
 Version: 0.5.0
 Authors@R: c(person("Antoine", "Guillot", email = "antoine.guil@outlook.fr", role = c("aut", "cre")),
       person(
@@ -26,15 +26,16 @@ Authors@R: c(person("Antoine", "Guillot", email = "antoine.guil@outlook.fr", rol
         , role = c("aut", "cph")
         , comment = "tether.js"
       ))
-Description: D3partitionR is designed to help to build interactive D3.js hierarchical visualisation with R. It makes it easy to build and customize sunburst, circle treemap, treemap, partition chart, ...
+Description: Builds interactive 'd3.js' hierarchical visualisation easily. D3partitionR makes it easy to build and customize sunburst, circle treemap, treemap, partition chart, ...
 Depends: R (>= 3.3.1)
 Imports:
     data.table,
     magrittr,
     htmlwidgets,
     functional,
-    RColorBrewer
-License: AGPL-3 + file LICENSE
+    RColorBrewer,
+    titanic
+License: AGPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
