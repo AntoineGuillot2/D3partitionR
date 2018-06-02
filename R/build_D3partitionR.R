@@ -110,13 +110,6 @@ set_discrete_color_scale<-function(D3partitionR_object,color_palette)
 #' @export
 set_continuous_color_scale<-function(D3partitionR_object,color_palette)
 {
-  ##Local binding for global variable
-  visible=NULL
-
-  if (!is.logical(visible))
-  {
-    stop('visible should be a boolean')
-  }
   D3partitionR_object$color<-list(type='continuous',color_palette=color_palette)
   return(D3partitionR_object)
 }
@@ -540,7 +533,7 @@ scale_type<-function(color_variable,D3partitionR_object)
     }
     if (all_numeric==T)
     {
-      return('numeric')
+      return('continuous')
     }
     else
     {
@@ -551,7 +544,7 @@ scale_type<-function(color_variable,D3partitionR_object)
   {
     if (is.numeric(D3partitionR_object$data$data[[color_variable]]))
     {
-      return('numeric')
+      return('continuous')
     }
     else
     {
