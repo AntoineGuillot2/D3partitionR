@@ -15,6 +15,10 @@ dependencies:
   version: 4.10.0
   src: "htmlwidgets/lib/d3-legend"
   script: "d3-legend.js"
+- name: 'd3.selection_multi'
+  version: 1.0.1
+  src: "htmlwidgets/lib/d3-selection-multi"
+  script: "d3-selection-multi.min.js"
 - name: 'helper.functions'
   version: 0.5.0
   src: "htmlwidgets/js"

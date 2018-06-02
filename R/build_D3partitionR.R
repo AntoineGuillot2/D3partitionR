@@ -218,6 +218,40 @@ set_legend_parameters<-function(D3partitionR_object,visible=T,zoom_subset=F,widt
   return(D3partitionR_object)
 }
 
+#' Set the node style
+#' @param D3partitionR_object The D3partitionR object to which the data should be appended
+#' @param idle_style the CSS to be applied when the node is idle (i.e no click nor hover)
+#' @param hovered_style the CSS to be applied when the node is hovered 
+#' @return A D3partitionR object
+#' @export
+set_nodes_styles<-function(D3partitionR_object,idle_style = 'stroke : black; stroke-width : 2;',hovered_style = 'stroke : white; stroke-width : 2;')
+{
+  if (!is.character(idle_style) || !is.character(hovered_style ))
+  {
+    stop('Both styles should be valid CSS strings')
+  }
+  D3partitionR_object$nodes<-list(idle_style = css_to_object(idle_style),
+                                  hovered_style = css_to_object(hovered_style))
+  return(D3partitionR_object)
+}
+
+#' Change a css string to a css 'object' to be used with d3.styles
+#' @param css_string the string to be transformed
+#' @return A list of attribute
+#' @export
+css_to_object <- function(css_string)
+{
+  style_object = list()
+  styles = css_string %>% gsub(" ","", .) %>% strsplit(';')
+  for (style in styles[[1]])
+  {
+    style_split = strsplit(style,':')[[1]]
+    style_object[[ style_split[1] ]] = style_split[2]
+  }
+  return(style_object)
+}
+
+
 #' Set the chart_type
 #' @param D3partitionR_object The D3partitionR object to which the data should be appended
 #' @param chart_type type fo chart to use (in c('sunburst','treemap','circle_treemap','partition_chart','icicle') )
@@ -435,6 +469,15 @@ compile_D3_partitionR<-function(D3partitionR_object)
     d3%<>%set_trail()
   }
   compiled_D3$trail=d3$trail
+  
+  ##Add nodes style
+  if (is.null(d3$nodes))
+  {
+    d3%<>%set_nodes_styles()
+  }
+  compiled_D3$nodes=d3$nodes
+  
+  
 
   ##Add chart type
   if (d3$chart_type=='blank')

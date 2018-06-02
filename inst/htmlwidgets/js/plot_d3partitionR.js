@@ -193,8 +193,7 @@ function plot_d3partitionR(el,D3partitionR)
         
 
 				chart.selectAll(".d3_partition_node")
-				  	.style("stroke", 'black')
-					  .style("stroke-width", 2)
+				  	.attrs(D3partitionR.nodes.idle_style)
 					.on("click", function(d) {
 
 						tooltip_pos=click_zoom(d);
@@ -226,7 +225,6 @@ function plot_d3partitionR(el,D3partitionR)
 						  {
 						    obj_out.children_path=getAncestors(d);
 						  }
-						  console.log(obj_out)
 						  Shiny.onInputChange(D3partitionR.shiny_input.input_id, obj_out);
 
 
@@ -235,8 +233,7 @@ function plot_d3partitionR(el,D3partitionR)
 					})
 					.on('mousemove', function (d) {
 					  d3.select(this).classed('hovered_node_'+el_id, true)
-					  .style("stroke", 'white')
-					  .style("stroke-width", 2);
+					  .attrs(D3partitionR.nodes.hovered_style);
 					  d3.select( '#tooltip_'+el_id).classed('hidden', false)
 					        .html(eval(D3partitionR.tooltip.builder))
 					        .attr('style',D3partitionR.tooltip.style);
@@ -252,7 +249,7 @@ function plot_d3partitionR(el,D3partitionR)
 
 					  )
         .on('mouseout', function () {
-          d3.select(this).classed('hovered_node_'+el_id, false).style("stroke", 'black');
+          d3.select(this).classed('hovered_node_'+el_id, false).attrs(D3partitionR.nodes.idle_style);
           setTimeout(function(){
     d3.select( '#tooltip_'+el_id).classed('hidden', true);
 }, 1000);
