@@ -169,7 +169,7 @@ To modify the labels parameters, you need to use **set_tooltip_parameters**, it 
 ##Circle treemap
 D3partitionR()%>%
     add_data(data_plot,count = 'N',steps=c('Sex','Embarked','Pclass','Survived'))%>%
-    set_label_parameters(visible=T,cut_off=3,style='fill:lightblue;')%>%
+    set_labels_parameters(visible=T,cut_off=3,style='fill:lightblue;')%>%
     plot()    
 ```
 The style argument is used to customise the labels using a CSS string. 
